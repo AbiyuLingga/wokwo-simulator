@@ -1,0 +1,37 @@
+{
+  "name": "ZMPT101B Voltage Sensor",
+  "author": "Codex",
+  "pins": [
+    "AC_L",
+    "AC_N",
+    "VCC",
+    "OUT",
+    "GND"
+  ],
+  "controls": [
+    {
+      "id": "voltageRms",
+      "label": "PLN RMS voltage",
+      "type": "range",
+      "min": 180,
+      "max": 250,
+      "step": 1
+    },
+    {
+      "id": "frequency",
+      "label": "Frequency",
+      "type": "range",
+      "min": 45,
+      "max": 65,
+      "step": 1
+    },
+    {
+      "id": "sensorRmsAt220",
+      "label": "Sensor RMS at 220V",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.5,
+      "step": 0.01
+    }
+  ]
+}

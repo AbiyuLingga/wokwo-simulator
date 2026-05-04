@@ -1,0 +1,37 @@
+{
+  "name": "ACS712 Current Sensor",
+  "author": "Codex",
+  "pins": [
+    "LINE_IN",
+    "LINE_OUT",
+    "VCC",
+    "OUT",
+    "GND"
+  ],
+  "controls": [
+    {
+      "id": "currentRms",
+      "label": "Current RMS",
+      "type": "range",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    },
+    {
+      "id": "frequency",
+      "label": "Frequency",
+      "type": "range",
+      "min": 45,
+      "max": 65,
+      "step": 1
+    },
+    {
+      "id": "sensorRmsVoltsPerAmp",
+      "label": "Sensor RMS volts per amp",
+      "type": "range",
+      "min": 0.02,
+      "max": 0.2,
+      "step": 0.01
+    }
+  ]
+}

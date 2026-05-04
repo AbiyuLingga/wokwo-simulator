@@ -1,0 +1,8 @@
+{
+  "name": "AC 220V Source",
+  "author": "Codex",
+  "pins": [
+    "L",
+    "N"
+  ]
+}

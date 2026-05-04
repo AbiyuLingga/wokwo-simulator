@@ -1,0 +1,8 @@
+{
+  "name": "Fan Load",
+  "author": "Codex",
+  "pins": [
+    "L",
+    "N"
+  ]
+}

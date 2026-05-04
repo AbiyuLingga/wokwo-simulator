@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Local AC Power Simulator</title>
+    <link rel="stylesheet" href="web-simulator.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="file-rail" aria-label="Project files">
+        <div class="rail-title">Project</div>
+        <button class="file-item active" type="button">diagram.json</button>
+        <button class="file-item" type="button">sketch.ino</button>
+        <button class="file-item" type="button">Serial</button>
+        <a class="file-item file-link" href="supabase-dashboard.html">Supabase</a>
+        <div class="rail-note">Local logic simulator</div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="project-name">
+            <span class="status-dot" id="statusDot"></span>
+            <span>AC Power Monitoring ESP32-S3</span>
+          </div>
+          <div class="sim-actions">
+            <button class="icon-button primary" id="runButton" type="button" title="Start simulation" aria-label="Start simulation">
+              <span id="runIcon">▶</span>
+            </button>
+            <button class="icon-button" id="resetButton" type="button" title="Reset energy counters" aria-label="Reset energy counters">↺</button>
+            <button class="text-button" id="fitButton" type="button">Fit</button>
+          </div>
+        </header>
+
+        <section class="canvas-shell" aria-label="Circuit canvas">
+          <div class="canvas-tools">
+            <button class="tool-button" id="zoomOutButton" type="button" title="Zoom out" aria-label="Zoom out">−</button>
+            <button class="tool-button" id="zoomInButton" type="button" title="Zoom in" aria-label="Zoom in">+</button>
+            <button class="tool-button" id="wireButton" type="button" title="Wire tool" aria-label="Wire tool">⌁</button>
+            <button class="tool-button" id="deleteWireButton" type="button" title="Delete selected wire" aria-label="Delete selected wire">×</button>
+            <button class="text-button" id="autoRouteButton" type="button">Auto</button>
+          </div>
+          <div class="canvas-stage" id="canvasStage">
+            <div class="circuit" id="circuit">
+              <svg class="wire-layer" viewBox="0 0 2200 1900" aria-hidden="true">
+                <defs>
+                  <filter id="wireGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="2" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                <g id="dynamicWires"></g>
+                <g id="wireLabels"></g>
+                <path class="wire preview-wire" id="previewWire" d="" />
+              </svg>
+
+              <section class="part esp32" data-part="esp">
+                <div class="antenna"></div>
+                <div class="board-chip">ESP32-S3<br />WROOM-1</div>
+                <div class="pin-col left"></div>
+                <div class="pin-col right"></div>
+                <div class="esp-pin-pads" aria-hidden="true">
+                  <span class="esp-pad left" style="--pin-y: 102px">3V3</span>
+                  <span class="esp-pad left" style="--pin-y: 500px">5V</span>
+                  <span class="esp-pad left" style="--pin-y: 524px">GND</span>
+                  <span class="esp-pad right" style="--pin-y: 88px">TX</span>
+                  <span class="esp-pad right" style="--pin-y: 110px">RX</span>
+                  <span class="esp-pad right" style="--pin-y: 134px">2</span>
+                  <span class="esp-pad right" style="--pin-y: 156px">42</span>
+                  <span class="esp-pad right" style="--pin-y: 178px">41</span>
+                  <span class="esp-pad right" style="--pin-y: 302px">36</span>
+                  <span class="esp-pad right" style="--pin-y: 334px">38</span>
+                  <span class="esp-pad right" style="--pin-y: 356px">39</span>
+                </div>
+                <div class="usb-row">
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="part-label">ESP32-S3</div>
+              </section>
+
+              <section class="part mux" data-part="mux">
+                <div class="ic-pin left"></div>
+                <div class="ic-body">CD4051</div>
+                <div class="ic-pin right"></div>
+              </section>
+
+              <section class="part ac ac1" data-part="ac1">
+                <div class="ac-symbol">∿</div>
+                <div class="pin red-pin"></div>
+                <div class="pin blue-pin"></div>
+                <div class="part-label">AC 220V</div>
+              </section>
+
+              <section class="part fan fan1" data-part="fan1">
+                <div class="fan-ring">
+                  <div class="fan-blade blade-a"></div>
+                  <div class="fan-blade blade-b"></div>
+                  <div class="fan-blade blade-c"></div>
+                  <div class="fan-hub"></div>
+                </div>
+                <div class="part-label">Fan Load 1</div>
+              </section>
+
+              <section class="part sensor acs acs1" data-part="acs1">
+                <div class="terminal"></div>
+                <div class="sensor-title">ACS712</div>
+                <div class="sensor-sub">Current</div>
+                <div class="sensor-pins">GND OUT VCC</div>
+              </section>
+
+              <section class="part sensor zmpt zmpt1" data-part="zmpt1">
+                <div class="terminal"></div>
+                <div class="sensor-title">ZMPT101B</div>
+                <div class="sensor-sub">Voltage</div>
+                <div class="sensor-pins">GND OUT VCC</div>
+              </section>
+
+              <section class="part relay relay1" data-part="relay1">
+                <div class="relay-inputs">VCC<br />GND<br />IN</div>
+                <div class="relay-body">Relay</div>
+                <div class="relay-throws">NO<br />COM<br />NC</div>
+                <div class="relay-led"></div>
+              </section>
+
+              <section class="part ac ac2" data-part="ac2">
+                <div class="ac-symbol">∿</div>
+                <div class="pin red-pin"></div>
+                <div class="pin blue-pin"></div>
+                <div class="part-label">AC 220V</div>
+              </section>
+
+              <section class="part fan fan2" data-part="fan2">
+                <div class="fan-ring">
+                  <div class="fan-blade blade-a"></div>
+                  <div class="fan-blade blade-b"></div>
+                  <div class="fan-blade blade-c"></div>
+                  <div class="fan-hub"></div>
+                </div>
+                <div class="part-label">Fan Load 2</div>
+              </section>
+
+              <section class="part sensor acs acs2" data-part="acs2">
+                <div class="terminal"></div>
+                <div class="sensor-title">ACS712</div>
+                <div class="sensor-sub">Current</div>
+                <div class="sensor-pins">GND OUT VCC</div>
+              </section>
+
+              <section class="part sensor zmpt zmpt2" data-part="zmpt2">
+                <div class="terminal"></div>
+                <div class="sensor-title">ZMPT101B</div>
+                <div class="sensor-sub">Voltage</div>
+                <div class="sensor-pins">GND OUT VCC</div>
+              </section>
+
+              <section class="part relay relay2" data-part="relay2">
+                <div class="relay-inputs">VCC<br />GND<br />IN</div>
+                <div class="relay-body">Relay</div>
+                <div class="relay-throws">NO<br />COM<br />NC</div>
+                <div class="relay-led"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="serial-panel" aria-label="Serial Monitor">
+          <div class="serial-head">
+            <span>Serial Monitor</span>
+            <span id="serialState">stopped</span>
+          </div>
+          <pre class="serial-output" id="serialOutput"></pre>
+          <form class="serial-form" id="serialForm">
+            <input id="serialInput" autocomplete="off" placeholder="Type command: on, off, toggle, reset..." />
+            <button type="submit">Send</button>
+          </form>
+        </section>
+      </main>
+
+      <aside class="inspector" aria-label="Simulation controls">
+        <div class="panel-section">
+          <h2>Simulation</h2>
+          <div class="metric-grid">
+            <div>
+              <span>Runtime</span>
+              <strong id="runtimeText">00:00</strong>
+            </div>
+            <div>
+              <span>Voltage</span>
+              <strong id="voltageText">220V</strong>
+            </div>
+          </div>
+          <label class="range-field">
+            <span>PLN RMS</span>
+            <input id="voltageRange" type="range" min="180" max="250" step="1" value="220" />
+          </label>
+        </div>
+
+        <div class="panel-section">
+          <h2>Loads</h2>
+          <div class="load-card" data-load-card="0">
+            <div class="load-head">
+              <strong>Load 1</strong>
+              <button class="small-button" data-command="toggle1" type="button">Toggle</button>
+            </div>
+            <label class="range-field">
+              <span>Fan resistor</span>
+              <input data-resistance="0" type="range" min="40" max="500" step="0.1" value="183.3" />
+            </label>
+            <div class="load-stats" id="loadStats0"></div>
+            <div class="read-chart">
+              <div class="chart-head">
+                <span>Waveform</span>
+                <span id="chartReadout0">No live window</span>
+              </div>
+              <svg class="measurement-chart waveform-chart" data-waveform-chart="0" viewBox="0 0 240 116" role="img" aria-label="Load 1 voltage and current waveform">
+                <line class="chart-grid" x1="10" y1="30" x2="230" y2="30"></line>
+                <line class="chart-divider" x1="10" y1="58" x2="230" y2="58"></line>
+                <line class="chart-grid" x1="10" y1="88" x2="230" y2="88"></line>
+                <text class="chart-axis-label voltage" x="12" y="16">V</text>
+                <text class="chart-axis-label current" x="12" y="74">I</text>
+                <polyline class="chart-line voltage" data-chart-line="voltage" points=""></polyline>
+                <polyline class="chart-line current" data-chart-line="current" points=""></polyline>
+              </svg>
+              <div class="chart-legend">
+                <span class="legend-voltage">V(t)</span>
+                <span class="legend-current">I(t)</span>
+              </div>
+            </div>
+            <div class="read-chart">
+              <div class="chart-head">
+                <span>Pavg</span>
+                <span id="pavgReadout0">0.00W</span>
+              </div>
+              <svg class="measurement-chart pavg-chart" data-pavg-chart="0" viewBox="0 0 240 76" role="img" aria-label="Load 1 average power graph">
+                <line class="chart-grid" x1="10" y1="18" x2="230" y2="18"></line>
+                <line class="chart-grid" x1="10" y1="38" x2="230" y2="38"></line>
+                <line class="chart-grid" x1="10" y1="58" x2="230" y2="58"></line>
+                <polyline class="chart-line pavg" data-pavg-line points=""></polyline>
+              </svg>
+              <div class="chart-legend">
+                <span class="legend-pavg">Pavg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="load-card" data-load-card="1">
+            <div class="load-head">
+              <strong>Load 2</strong>
+              <button class="small-button" data-command="toggle2" type="button">Toggle</button>
+            </div>
+            <label class="range-field">
+              <span>Fan resistor</span>
+              <input data-resistance="1" type="range" min="40" max="500" step="0.1" value="122.2" />
+            </label>
+            <div class="load-stats" id="loadStats1"></div>
+            <div class="read-chart">
+              <div class="chart-head">
+                <span>Waveform</span>
+                <span id="chartReadout1">No live window</span>
+              </div>
+              <svg class="measurement-chart waveform-chart" data-waveform-chart="1" viewBox="0 0 240 116" role="img" aria-label="Load 2 voltage and current waveform">
+                <line class="chart-grid" x1="10" y1="30" x2="230" y2="30"></line>
+                <line class="chart-divider" x1="10" y1="58" x2="230" y2="58"></line>
+                <line class="chart-grid" x1="10" y1="88" x2="230" y2="88"></line>
+                <text class="chart-axis-label voltage" x="12" y="16">V</text>
+                <text class="chart-axis-label current" x="12" y="74">I</text>
+                <polyline class="chart-line voltage" data-chart-line="voltage" points=""></polyline>
+                <polyline class="chart-line current" data-chart-line="current" points=""></polyline>
+              </svg>
+              <div class="chart-legend">
+                <span class="legend-voltage">V(t)</span>
+                <span class="legend-current">I(t)</span>
+              </div>
+            </div>
+            <div class="read-chart">
+              <div class="chart-head">
+                <span>Pavg</span>
+                <span id="pavgReadout1">0.00W</span>
+              </div>
+              <svg class="measurement-chart pavg-chart" data-pavg-chart="1" viewBox="0 0 240 76" role="img" aria-label="Load 2 average power graph">
+                <line class="chart-grid" x1="10" y1="18" x2="230" y2="18"></line>
+                <line class="chart-grid" x1="10" y1="38" x2="230" y2="38"></line>
+                <line class="chart-grid" x1="10" y1="58" x2="230" y2="58"></line>
+                <polyline class="chart-line pavg" data-pavg-line points=""></polyline>
+              </svg>
+              <div class="chart-legend">
+                <span class="legend-pavg">Pavg</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2>Wire</h2>
+          <div class="swatch-row" aria-label="Wire color">
+            <button class="swatch active" data-wire-color="red" type="button" title="Red wire" aria-label="Red wire"></button>
+            <button class="swatch blue" data-wire-color="blue" type="button" title="Blue wire" aria-label="Blue wire"></button>
+            <button class="swatch black" data-wire-color="black" type="button" title="Black wire" aria-label="Black wire"></button>
+            <button class="swatch purple" data-wire-color="purple" type="button" title="Purple wire" aria-label="Purple wire"></button>
+            <button class="swatch orange" data-wire-color="orange" type="button" title="Orange wire" aria-label="Orange wire"></button>
+            <button class="swatch green" data-wire-color="green" type="button" title="Green wire" aria-label="Green wire"></button>
+          </div>
+          <div class="wire-readout" id="wireReadout">No pin selected</div>
+        </div>
+
+        <div class="panel-section command-grid">
+          <button data-command="on" type="button">All On</button>
+          <button data-command="off" type="button">All Off</button>
+          <button data-command="toggle" type="button">Toggle</button>
+          <button data-command="reset" type="button">Reset</button>
+        </div>
+      </aside>
+    </div>
+
+    <script src="web-simulator.js"></script>
+  </body>
+</html>

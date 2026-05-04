@@ -1,0 +1,82 @@
+{
+  "name": "AC Power Source",
+  "author": "Codex",
+  "pins": [
+    "VCC",
+    "GND",
+    "VOUT",
+    "IOUT0",
+    "IOUT1",
+    "IOUT2",
+    "IOUT3",
+    "IOUT4",
+    "IOUT5",
+    "LOAD_ENABLE"
+  ],
+  "controls": [
+    {
+      "id": "voltageRms",
+      "label": "PLN RMS voltage",
+      "type": "range",
+      "min": 180,
+      "max": 250,
+      "step": 1
+    },
+    {
+      "id": "frequency",
+      "label": "Frequency",
+      "type": "range",
+      "min": 45,
+      "max": 65,
+      "step": 1
+    },
+    {
+      "id": "currentCh0",
+      "label": "Current C0",
+      "type": "range",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    },
+    {
+      "id": "currentCh1",
+      "label": "Current C1",
+      "type": "range",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    },
+    {
+      "id": "currentCh2",
+      "label": "Current C2",
+      "type": "range",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    },
+    {
+      "id": "currentCh3",
+      "label": "Current C3",
+      "type": "range",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    },
+    {
+      "id": "currentCh4",
+      "label": "Current C4",
+      "type": "range",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    },
+    {
+      "id": "currentCh5",
+      "label": "Current C5",
+      "type": "range",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    }
+  ]
+}

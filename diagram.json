@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "author": "abiyulinx",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-s3-devkitc-1",
+      "id": "esp",
+      "top": 520,
+      "left": -170,
+      "attrs": {}
+    },
+    {
+      "type": "chip-cd4051b",
+      "id": "mux",
+      "top": 720,
+      "left": 290,
+      "attrs": {},
+      "rotate": 90
+    },
+    {
+      "type": "chip-ac-main",
+      "id": "ac1",
+      "top": 40,
+      "left": 650,
+      "attrs": {}
+    },
+    {
+      "type": "chip-fan-load",
+      "id": "fan1",
+      "top": 50,
+      "left": 1030,
+      "attrs": {}
+    },
+    {
+      "type": "chip-acs712",
+      "id": "acs1",
+      "top": 345,
+      "left": 710,
+      "attrs": {
+        "currentRms": "1.20",
+        "frequency": "50",
+        "sensorRmsVoltsPerAmp": "0.08"
+      }
+    },
+    {
+      "type": "chip-zmpt101b",
+      "id": "zmpt1",
+      "top": 710,
+      "left": 710,
+      "attrs": {
+        "voltageRms": "220",
+        "frequency": "50",
+        "sensorRmsAt220": "0.80"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay1",
+      "top": 390,
+      "left": 1105,
+      "attrs": {
+        "transistor": "pnp"
+      }
+    },
+    {
+      "type": "chip-ac-main",
+      "id": "ac2",
+      "top": 1030,
+      "left": 650,
+      "attrs": {}
+    },
+    {
+      "type": "chip-fan-load",
+      "id": "fan2",
+      "top": 1040,
+      "left": 1030,
+      "attrs": {}
+    },
+    {
+      "type": "chip-acs712",
+      "id": "acs2",
+      "top": 1045,
+      "left": 710,
+      "attrs": {
+        "currentRms": "1.80",
+        "frequency": "50",
+        "sensorRmsVoltsPerAmp": "0.08"
+      }
+    },
+    {
+      "type": "chip-zmpt101b",
+      "id": "zmpt2",
+      "top": 1390,
+      "left": 710,
+      "attrs": {
+        "voltageRms": "220",
+        "frequency": "50",
+        "sensorRmsAt220": "0.80"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay2",
+      "top": 1090,
+      "left": 1105,
+      "attrs": {
+        "transistor": "pnp"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "title",
+      "top": -35,
+      "left": 660,
+      "attrs": {
+        "text": "Reference layout: circuit_image (1).png"
+      }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "esp:3V3", "mux:VCC", "red", [ "v-80", "h520", "v250" ] ],
+    [ "esp:GND", "mux:GND", "black", [ "h260", "v300" ] ],
+    [ "esp:GND", "mux:VEE", "black", [ "h250", "v325" ] ],
+    [ "esp:GND", "mux:INH", "black", [ "h240", "v350" ] ],
+    [ "esp:36", "mux:COM", "purple", [ "h190", "v120" ] ],
+    [ "esp:2", "mux:A", "orange", [ "h240", "v390" ] ],
+    [ "esp:42", "mux:B", "orange", [ "h230", "v420" ] ],
+    [ "esp:41", "mux:C", "orange", [ "h220", "v450" ] ],
+
+    [ "mux:C0", "acs1:OUT", "purple", [ "h230", "v-380" ] ],
+    [ "mux:C1", "zmpt1:OUT", "purple", [ "h260", "v-30" ] ],
+    [ "mux:C2", "acs2:OUT", "purple", [ "h300", "v330" ] ],
+    [ "mux:C3", "zmpt2:OUT", "purple", [ "h330", "v710" ] ],
+
+    [ "esp:5V", "acs1:VCC", "red", [ "v810", "h980", "v-1120" ] ],
+    [ "esp:5V", "zmpt1:VCC", "red", [ "v810", "h960", "v-745" ] ],
+    [ "esp:5V", "relay1:VCC", "red", [ "v810", "h1360", "v-1090" ] ],
+    [ "esp:5V", "acs2:VCC", "red", [ "v810", "h980", "v-420" ] ],
+    [ "esp:5V", "zmpt2:VCC", "red", [ "v810", "h960", "v-65" ] ],
+    [ "esp:5V", "relay2:VCC", "red", [ "v810", "h1360", "v-390" ] ],
+
+    [ "esp:GND", "acs1:GND", "black", [ "v880", "h980", "v-1180" ] ],
+    [ "esp:GND", "zmpt1:GND", "black", [ "v880", "h960", "v-805" ] ],
+    [ "esp:GND", "relay1:GND", "black", [ "v880", "h1360", "v-1150" ] ],
+    [ "esp:GND", "acs2:GND", "black", [ "v880", "h980", "v-480" ] ],
+    [ "esp:GND", "zmpt2:GND", "black", [ "v880", "h960", "v-125" ] ],
+    [ "esp:GND", "relay2:GND", "black", [ "v880", "h1360", "v-450" ] ],
+
+    [ "esp:39", "relay1:IN", "limegreen", [ "h760", "v-110" ] ],
+    [ "esp:38", "relay2:IN", "limegreen", [ "h760", "v590" ] ],
+
+    [ "ac1:L", "relay1:NO", "red", [ "h500", "v330" ] ],
+    [ "relay1:COM", "acs1:LINE_IN", "red", [ "h-280", "v-55" ] ],
+    [ "acs1:LINE_OUT", "fan1:L", "red", [ "h150", "v-270", "h280" ] ],
+    [ "ac1:N", "fan1:N", "blue", [ "h345" ] ],
+    [ "ac1:L", "zmpt1:AC_L", "red", [ "v630", "h50" ] ],
+    [ "ac1:N", "zmpt1:AC_N", "blue", [ "h190", "v650", "h-140" ] ],
+
+    [ "ac2:L", "relay2:NO", "red", [ "h500", "v80" ] ],
+    [ "relay2:COM", "acs2:LINE_IN", "red", [ "h-280", "v-55" ] ],
+    [ "acs2:LINE_OUT", "fan2:L", "red", [ "h150", "v-20", "h280" ] ],
+    [ "ac2:N", "fan2:N", "blue", [ "h345" ] ],
+    [ "ac2:L", "zmpt2:AC_L", "red", [ "v335", "h50" ] ],
+    [ "ac2:N", "zmpt2:AC_N", "blue", [ "h190", "v355", "h-140" ] ]
+  ],
+  "serialMonitor": {
+    "display": "always",
+    "newline": "lf"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AC Power Supabase Dashboard</title>
+    <link rel="stylesheet" href="supabase-dashboard.css" />
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <header class="dashboard-header">
+        <div>
+          <p class="eyebrow">AC Power Monitor</p>
+          <h1>Dashboard Supabase</h1>
+        </div>
+        <div class="header-actions">
+          <a class="ghost-link" href="web-simulator.html">Simulator</a>
+          <button class="secondary-button" id="refreshButton" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <section class="connection-panel" aria-label="Supabase connection">
+        <form class="connection-form" id="connectionForm">
+          <label>
+            <span>Supabase URL</span>
+            <input id="supabaseUrl" name="supabaseUrl" autocomplete="off" placeholder="https://project-id.supabase.co" />
+          </label>
+          <label>
+            <span>Anon key</span>
+            <input id="supabaseAnonKey" name="supabaseAnonKey" autocomplete="off" placeholder="eyJhbGciOi..." />
+          </label>
+          <button class="primary-button" type="submit">Connect</button>
+        </form>
+        <div class="connection-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Not connected</span>
+        </div>
+      </section>
+
+      <section class="summary-grid" aria-label="Power summary">
+        <article class="summary-item">
+          <span>Total daya aktif</span>
+          <strong id="totalPower">0 W</strong>
+        </article>
+        <article class="summary-item">
+          <span>Total energi</span>
+          <strong id="totalEnergy">0 Wh</strong>
+        </article>
+        <article class="summary-item">
+          <span>Estimasi per jam</span>
+          <strong id="totalCost">Rp0</strong>
+        </article>
+        <article class="summary-item">
+          <span>Update terakhir</span>
+          <strong id="lastRefresh">-</strong>
+        </article>
+      </section>
+
+      <section class="toolbar-row" aria-label="Relay actions">
+        <button class="secondary-button" id="seedButton" type="button">Seed 2 Rangkaian</button>
+        <button class="secondary-button" id="allOnButton" type="button">All On</button>
+        <button class="secondary-button danger" id="allOffButton" type="button">All Off</button>
+      </section>
+
+      <section class="circuit-grid" id="circuitGrid" aria-live="polite"></section>
+    </main>
+
+    <template id="circuitCardTemplate">
+      <article class="circuit-card">
+        <div class="card-head">
+          <div>
+            <p class="card-kicker"></p>
+            <h2></h2>
+          </div>
+          <button class="relay-toggle" type="button"></button>
+        </div>
+
+        <div class="metric-list">
+          <div>
+            <span>Daya</span>
+            <strong data-field="power">0 W</strong>
+          </div>
+          <div>
+            <span>Energi</span>
+            <strong data-field="energy">0 Wh</strong>
+          </div>
+          <div>
+            <span>Estimasi / jam</span>
+            <strong data-field="cost">Rp0</strong>
+          </div>
+          <div>
+            <span>Relay</span>
+            <strong data-field="relay">OFF</strong>
+          </div>
+        </div>
+
+        <dl class="detail-list">
+          <div>
+            <dt>Vrms</dt>
+            <dd data-field="voltage">0 V</dd>
+          </div>
+          <div>
+            <dt>Irms</dt>
+            <dd data-field="current">0 A</dd>
+          </div>
+          <div>
+            <dt>VA</dt>
+            <dd data-field="va">0 VA</dd>
+          </div>
+          <div>
+            <dt>PF</dt>
+            <dd data-field="pf">0</dd>
+          </div>
+        </dl>
+
+        <form class="tariff-form">
+          <label>
+            <span>Tarif / kWh</span>
+            <input name="tariff" inputmode="decimal" />
+          </label>
+          <button class="secondary-button" type="submit">Save</button>
+        </form>
+        <p class="reading-time" data-field="time">Belum ada data</p>
+      </article>
+    </template>
+
+    <script src="supabase-dashboard.js"></script>
+  </body>
+</html>
