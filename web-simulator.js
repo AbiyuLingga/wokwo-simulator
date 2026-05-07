@@ -1,8 +1,8 @@
 const loads = [
-  { resistanceOhms: 183.3, relay: true, wallSwitch: false, wh: 0 },
-  { resistanceOhms: 122.2, relay: true, wallSwitch: false, wh: 0 },
-  { resistanceOhms: 91.7, relay: true, wallSwitch: false, wh: 0 },
-  { resistanceOhms: 73.3, relay: true, wallSwitch: false, wh: 0 },
+  { resistanceOhms: 183.3, relay: true, wallSwitch: true, wh: 0 },
+  { resistanceOhms: 122.2, relay: true, wallSwitch: true, wh: 0 },
+  { resistanceOhms: 91.7, relay: true, wallSwitch: true, wh: 0 },
+  { resistanceOhms: 73.3, relay: true, wallSwitch: true, wh: 0 },
 ];
 
 let voltageRms = 220;
@@ -30,11 +30,14 @@ const runButton = document.querySelector("#runButton");
 const runIcon = document.querySelector("#runIcon");
 const resetButton = document.querySelector("#resetButton");
 const fitButton = document.querySelector("#fitButton");
+const view3dButton = document.querySelector("#view3dButton");
+const view2dButton = document.querySelector("#view2dButton");
 const zoomInButton = document.querySelector("#zoomInButton");
 const zoomOutButton = document.querySelector("#zoomOutButton");
 const wireButton = document.querySelector("#wireButton");
 const deleteWireButton = document.querySelector("#deleteWireButton");
 const autoRouteButton = document.querySelector("#autoRouteButton");
+const scene3dShell = document.querySelector("#scene3dShell");
 const circuit = document.querySelector("#circuit");
 const canvasStage = document.querySelector("#canvasStage");
 const dynamicWires = document.querySelector("#dynamicWires");
@@ -321,6 +324,7 @@ let selectedWireIndex = null;
 let segmentDrag = null;
 let wireDrag = null;
 let stagePan = null;
+let viewMode = "3d";
 const pinAnchorElements = new Map();
 const wires = [];
 wires.push(
@@ -1248,21 +1252,21 @@ function routeForWire(wire, index) {
   }
 
   const acRoutes = {
-    "ac1:L->relay1:NO": [{ x: 910, y: from.y }, { x: 910, y: 355 }, { x: 1390, y: 355 }, { x: 1390, y: to.y }],
+    "ac1:L->relay1:NO": [{ x: 910, y: from.y }, { x: 910, y: 355 }, { x: 1635, y: 355 }, { x: 1635, y: to.y }],
     "relay1:COM->acs1:LINE_IN": [{ x: 1635, y: from.y }, { x: 1635, y: 640 }, { x: 1010, y: 640 }, { x: 1010, y: to.y }],
     "acs1:LINE_OUT->fan1:L": [{ x: 1270, y: from.y }, { x: 1270, y: 305 }, { x: 1770, y: 305 }, { x: 1770, y: to.y }],
     "ac1:N->fan1:N": [{ x: 1220, y: from.y }, { x: 1220, y: 35 }, { x: 1836, y: 35 }, { x: 1836, y: to.y }, { x: to.x, y: to.y }],
     "ac1:L->zmpt1:AC_L": [{ x: 900, y: from.y }, { x: 900, y: to.y }],
     "ac1:N->zmpt1:AC_N": [{ x: 1230, y: from.y }, { x: 1230, y: to.y }],
-    "ac2:L->relay2:NO": [{ x: 2110, y: from.y }, { x: 2110, y: 355 }, { x: 2590, y: 355 }, { x: 2590, y: to.y }],
+    "ac2:L->relay2:NO": [{ x: 2110, y: from.y }, { x: 2110, y: 355 }, { x: 2835, y: 355 }, { x: 2835, y: to.y }],
     "relay2:COM->acs2:LINE_IN": [{ x: 2835, y: from.y }, { x: 2835, y: 640 }, { x: 2210, y: 640 }, { x: 2210, y: to.y }],
     "acs2:LINE_OUT->fan2:L": [{ x: 2470, y: from.y }, { x: 2470, y: 305 }, { x: 2970, y: 305 }, { x: 2970, y: to.y }],
     "ac2:N->fan2:N": [{ x: 2420, y: from.y }, { x: 2420, y: 35 }, { x: 3036, y: 35 }, { x: 3036, y: to.y }, { x: to.x, y: to.y }],
-    "ac3:L->relay3:NO": [{ x: 910, y: from.y }, { x: 910, y: 1155 }, { x: 1390, y: 1155 }, { x: 1390, y: to.y }],
+    "ac3:L->relay3:NO": [{ x: 910, y: from.y }, { x: 910, y: 1155 }, { x: 1635, y: 1155 }, { x: 1635, y: to.y }],
     "relay3:COM->acs3:LINE_IN": [{ x: 1635, y: from.y }, { x: 1635, y: 1440 }, { x: 1010, y: 1440 }, { x: 1010, y: to.y }],
     "acs3:LINE_OUT->fan3:L": [{ x: 1270, y: from.y }, { x: 1270, y: 1105 }, { x: 1770, y: 1105 }, { x: 1770, y: to.y }],
     "ac3:N->fan3:N": [{ x: 1220, y: from.y }, { x: 1220, y: 835 }, { x: 1836, y: 835 }, { x: 1836, y: to.y }, { x: to.x, y: to.y }],
-    "ac4:L->relay4:NO": [{ x: 2110, y: from.y }, { x: 2110, y: 1155 }, { x: 2590, y: 1155 }, { x: 2590, y: to.y }],
+    "ac4:L->relay4:NO": [{ x: 2110, y: from.y }, { x: 2110, y: 1155 }, { x: 2835, y: 1155 }, { x: 2835, y: to.y }],
     "relay4:COM->acs4:LINE_IN": [{ x: 2835, y: from.y }, { x: 2835, y: 1440 }, { x: 2210, y: 1440 }, { x: 2210, y: to.y }],
     "acs4:LINE_OUT->fan4:L": [{ x: 2470, y: from.y }, { x: 2470, y: 1105 }, { x: 2970, y: 1105 }, { x: 2970, y: to.y }],
     "ac4:N->fan4:N": [{ x: 2420, y: from.y }, { x: 2420, y: 835 }, { x: 3036, y: 835 }, { x: 3036, y: to.y }, { x: to.x, y: to.y }],
@@ -1948,6 +1952,33 @@ function printMeasurement(m) {
   );
 }
 
+function getSimulatorSnapshot() {
+  return {
+    loads: loads.map((load, index) => ({
+      index,
+      resistanceOhms: load.resistanceOhms,
+      relay: load.relay,
+      wallSwitch: load.wallSwitch,
+      energized: isLoadEnergized(index),
+      wh: load.wh,
+      irms: loadCurrentRms(index),
+      pavgWatts: voltageRms * loadCurrentRms(index),
+    })),
+    running,
+    runtimeMs,
+    voltageRms,
+    viewMode,
+  };
+}
+
+function notifySimulatorStateChanged() {
+  window.dispatchEvent(
+      new CustomEvent("ac-power-state-change", {
+        detail: getSimulatorSnapshot(),
+      })
+  );
+}
+
 function updateVisualState() {
   document.body.classList.toggle("running", running);
   document.body.classList.toggle("wire-mode", wireMode);
@@ -1989,6 +2020,7 @@ function updateVisualState() {
 
   circuit.style.transform = `scale(${zoom})`;
   renderWires();
+  notifySimulatorStateChanged();
 }
 
 function tick() {
@@ -2153,8 +2185,8 @@ function setZoom(value) {
 }
 
 function fitCircuit() {
-  const stageWidth = canvasStage.clientWidth;
-  const stageHeight = canvasStage.clientHeight;
+  const stageWidth = canvasStage.clientWidth || canvasStage.parentElement?.clientWidth || 1200;
+  const stageHeight = canvasStage.clientHeight || canvasStage.parentElement?.clientHeight || 740;
   const scaleX = stageWidth / 3400;
   const scaleY = stageHeight / 1700;
   setZoom(Math.min(scaleX, scaleY) * 0.94);
@@ -2210,13 +2242,65 @@ function preventCanvasContextMenu(event) {
   event.stopPropagation();
 }
 
+function setViewMode(mode) {
+  viewMode = mode === "2d" ? "2d" : "3d";
+  document.body.classList.toggle("show-2d", viewMode === "2d");
+  view3dButton?.classList.toggle("active", viewMode === "3d");
+  view2dButton?.classList.toggle("active", viewMode === "2d");
+  scene3dShell?.classList.toggle("active", viewMode === "3d");
+  scene3dShell?.setAttribute("aria-hidden", viewMode === "2d" ? "true" : "false");
+  canvasStage?.setAttribute("aria-hidden", viewMode === "3d" ? "true" : "false");
+
+  if (viewMode === "2d") {
+    window.setTimeout(fitCircuit, 0);
+  }
+
+  window.dispatchEvent(
+      new CustomEvent("ac-power-view-mode-change", {
+        detail: { mode: viewMode },
+      })
+  );
+}
+
+window.acPowerSim = {
+  loads,
+  get running() {
+    return running;
+  },
+  get runtimeMs() {
+    return runtimeMs;
+  },
+  get voltageRms() {
+    return voltageRms;
+  },
+  get viewMode() {
+    return viewMode;
+  },
+  getState: getSimulatorSnapshot,
+  isLoadEnergized,
+  toggleWallSwitch(index) {
+    toggleWallSwitch(index);
+    updateVisualState();
+  },
+  setViewMode,
+};
+
+view3dButton?.addEventListener("click", () => setViewMode("3d"));
+view2dButton?.addEventListener("click", () => setViewMode("2d"));
+
 runButton.addEventListener("click", () => {
   if (running) stop();
   else start();
 });
 
 resetButton.addEventListener("click", resetEnergy);
-fitButton.addEventListener("click", fitCircuit);
+fitButton.addEventListener("click", () => {
+  if (viewMode === "3d") {
+    window.dispatchEvent(new CustomEvent("ac-power-3d-reset-camera"));
+    return;
+  }
+  fitCircuit();
+});
 zoomInButton.addEventListener("click", () => setZoom(zoom + 0.08));
 zoomOutButton.addEventListener("click", () => setZoom(zoom - 0.08));
 wireButton.addEventListener("click", () => {
@@ -2348,6 +2432,7 @@ autoRouteAll({ resetLayout: true });
 appendSerial("AC Power Monitoring ESP32-S3 Local Web Simulator");
 appendSerial("This runs locally in the browser and mirrors the project Serial Monitor behavior.");
 printHelp();
+setViewMode("3d");
 fitCircuit();
 renderMeasurementCharts();
 updateVisualState();

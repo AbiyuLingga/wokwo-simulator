@@ -1,6 +1,6 @@
 # AI Handoff - AC Power Wokwi Sim
 
-Tanggal konteks: 2026-05-04
+Tanggal konteks: 2026-05-07
 
 Dokumen ini adalah pegangan untuk AI berikutnya yang melanjutkan proyek `ac-power-wokwi-sim`. Isinya merangkum keputusan teknis terbaru, file penting, cara menjalankan, dan hal yang tidak boleh diregresikan.
 
@@ -34,6 +34,10 @@ Pada simulator resistif saat ini, V dan I dibuat sefase. PF boleh muncul sebagai
 - `fan-load.chip.c/json` - chip visual beban fan.
 - `ac-power-source.chip.c/json` - sumber AC lama/kompak, bukan fokus layout referensi terbaru.
 - `web-simulator.html/css/js` - simulator browser lokal dengan editor wiring, relay, grafik waveform, dan grafik Pavg.
+- `web-simulator-3d.js` - 3D WebGL viewer CRUMB-style untuk rangkaian, memakai Three.js lokal, mode 3D default, dan state bridge dari `web-simulator.js`.
+- `vendor/three/` - Three.js r172 vendored lokal agar static server tanpa npm/bundler tetap bisa memuat module WebGL.
+- `assets/3d/ATTRIBUTION.md` - catatan aset 3D dan sumber referensi.
+- `assets/3d/models/fan.glb` - asset kipas internet yang tetap disimpan sebagai referensi, tetapi viewer terbaru memakai kipas rumah procedural karena user meminta kipas rumah, bukan cooling fan kecil.
 - `local-sim.js` - simulator Node sederhana. Masih memakai model arus fixed, belum sama dengan model resistor di web simulator.
 - `supabase-dashboard.html/css/js` - dashboard Supabase untuk readings dan kontrol relay.
 - `supabase/schema.sql` - schema Supabase, RLS demo, dan starter rows.
@@ -69,6 +73,18 @@ Lalu buka:
 ```text
 http://127.0.0.1:8000/web-simulator.html
 ```
+
+Catatan rollout terakhir: port `8001` sudah pernah terpakai, lalu server aktif dipakai di `8002`:
+
+```bash
+python3 -m http.server 8002
+```
+
+```text
+http://127.0.0.1:8002/web-simulator.html
+```
+
+Halaman sekarang membuka mode `3D` secara default. Tombol `2D` di topbar mengembalikan editor wiring 2D lama.
 
 ### Simulator Node
 
@@ -208,14 +224,16 @@ Jawaban praktis jika user bertanya cara mematikan satu relay:
 
 ## Detail Simulator Web
 
-File utama: `web-simulator.js`.
+File utama 2D/state: `web-simulator.js`.
 
 State load terbaru:
 
 ```js
 const loads = [
-  { resistanceOhms: 183.3, relay: true, wh: 0, readings: null },
-  { resistanceOhms: 122.2, relay: true, wh: 0, readings: null },
+  { resistanceOhms: 183.3, relay: true, wallSwitch: false, wh: 0 },
+  { resistanceOhms: 122.2, relay: true, wallSwitch: false, wh: 0 },
+  { resistanceOhms: 91.7, relay: true, wallSwitch: false, wh: 0 },
+  { resistanceOhms: 73.3, relay: true, wallSwitch: false, wh: 0 },
 ];
 ```
 
@@ -243,6 +261,66 @@ Fungsi penting:
 - `clearLoadCharts(index)` - membersihkan waveform dan Pavg graph load terkait.
 - `startMeasurementWindow(index)` - memulai window sampling baru.
 - `handleCommand(command)` - menangani command relay dan reset.
+- `window.acPowerSim` - bridge global untuk 3D viewer. Expose `getState()`, `toggleWallSwitch(index)`, `setViewMode(mode)`, dan getter `running/runtimeMs/voltageRms/viewMode`.
+- `notifySimulatorStateChanged()` - dispatch event `ac-power-state-change` setelah state visual berubah.
+
+View mode:
+
+- `3D` default, handled oleh `setViewMode("3d")`.
+- `2D` menampilkan `.legacy-2d-shell` dan tools wiring lama.
+- Tombol `Fit` di mode 3D dispatch `ac-power-3d-reset-camera`; di mode 2D tetap menjalankan `fitCircuit()`.
+
+## Detail 3D Viewer
+
+File utama: `web-simulator-3d.js`.
+
+Implementasi:
+
+- Three.js WebGL renderer dengan `powerPreference: "high-performance"`.
+- Import map di `web-simulator.html` mengarah ke `./vendor/three/three.module.js`.
+- `OrbitControls` dipakai untuk rotate/zoom/pan kamera.
+- Mode 3D memakai state dari `window.acPowerSim`, bukan state terpisah.
+- Klik saklar 3D memanggil `window.acPowerSim.toggleWallSwitch(index)`.
+- Klik kabel 3D memilih satu kabel dan membuat highlight kuning; status HUD menampilkan label jalur, misalnya `Load 1: ESP.R1 -> Relay.IN`.
+- Klik area kosong menghapus pilihan kabel.
+
+Layout 3D terakhir:
+
+- Control area ESP32 + CD4051 di kiri.
+- Empat load pod tersusun 2x2.
+- Setiap load pod mengelompokkan sensor, relay, kipas rumah besar, dan saklar dinding besar.
+- Kipas sekarang procedural household/pedestal fan. Jangan balik ke `fan.glb` cooling fan kecil kecuali user minta.
+- `fan.glb` tetap ada di `assets/3d/models/fan.glb` hanya sebagai asset/referensi yang sudah diunduh.
+
+Kabel 3D terbaru:
+
+- Kabel dirender sebagai tube 3D dan tersambung ke pin/terminal tiap komponen.
+- Pin yang dimodelkan: AC `L/N`, ACS712 `L IN/L OUT/VCC/OUT/GND`, ZMPT101B `L/N/VCC/OUT/GND`, relay `VCC/GND/IN/NO/COM/NC`, fan `L/N`, switch `SIG/GND`, ESP/control pins, dan MUX channels.
+- Kabel horizontal utama diroute lewat bawah board dengan `underBoardWireY`.
+- Endpoint tetap naik/turun vertikal pendek ke pin komponen.
+- User terakhir meminta menghapus panel tulisan besar `Load 1 pin bawah board`; jangan munculkan panel pin map besar lagi.
+- User terakhir meminta kabel jangan terlihat patah tajam. Implementasi memakai `createRoundedPath()` dengan `THREE.QuadraticBezierCurve3` di belokan, sambil tetap mempertahankan arah jalur orthogonal.
+- Hitbox kabel dibuat dengan tube transparan yang lebih tebal (`wireHitTargets`) supaya klik kabel lebih mudah.
+
+Fungsi penting 3D:
+
+- `createHouseFan()` - model kipas rumah procedural.
+- `createWire(points, color, loadIndex, role, radius, label)` - membuat kabel, hitbox klik, dan metadata label.
+- `routeUnderBoard(points)` - menurunkan titik jalur ke layer bawah board.
+- `createRoundedPath(vectors)` - membuat belokan smooth pada jalur orthogonal.
+- `selectWire(wire)` - set kabel aktif/highlight dan update HUD.
+- `updateSwitchHover(event)` - raycast saklar dan kabel.
+- `animate(time)` - update orbit controls, animasi kipas, wire glow, dan highlight kabel.
+
+Jangan regresi di 3D:
+
+- Jangan menaruh kabel utama lewat atas board/komponen.
+- Jangan mengembalikan panel label besar yang mengganggu.
+- Jangan membuat kabel patah siku tajam.
+- Jangan menghapus klik kabel/highlight.
+- Jangan menghilangkan klik saklar 3D.
+- Jangan mengganti kipas rumah besar menjadi cooling fan kecil.
+- Jangan membuat 3D state terpisah dari simulator utama.
 
 ## Grafik
 
@@ -282,6 +360,7 @@ Status terbaru:
 - Anchor dot muncul saat wire mode aktif.
 - Kabel dirender di belakang komponen.
 - Routing otomatis memakai jalur sekitar komponen dan pin stub pendek.
+- Catatan: bagian ini khusus 2D editor lama. Untuk 3D, lihat bagian `Detail 3D Viewer`.
 
 CSS penting:
 
@@ -382,6 +461,7 @@ Firmware poll relay dari:
 - Jangan membuat grafik hanya berupa titik hasil akhir.
 - Jangan biarkan grafik tetap jalan setelah relay OFF.
 - Jangan membuat kabel browser kembali melewati atas komponen jika bisa diroute di belakang/sekitar komponen.
+- Untuk 3D viewer, jangan memakai screenshot headless sebagai bukti GPU nyata. Chrome headless di mesin ini pernah fallback dan menulis error VAAPI/Vulkan, tetapi render WebGL tetap berhasil untuk screenshot.
 - README lebih ringkas; dokumen ini adalah rujukan lanjutan yang lebih detail.
 
 ## Validasi Cepat
@@ -390,6 +470,7 @@ Untuk perubahan JavaScript:
 
 ```bash
 node --check web-simulator.js
+node --check web-simulator-3d.js
 node --check local-sim.js
 ```
 
@@ -405,6 +486,19 @@ Untuk smoke test browser headless jika tersedia:
 google-chrome --headless --disable-gpu --screenshot=/tmp/ac-power-wokwi-sim.png file:///home/abiyulinx/computing/ac-power-wokwi-sim/web-simulator.html
 ```
 
+Smoke test static server yang dipakai terakhir:
+
+```bash
+python3 -m http.server 8002
+google-chrome --headless=new --no-sandbox --enable-gpu --ignore-gpu-blocklist --window-size=1800,1000 --virtual-time-budget=5000 --screenshot=/tmp/ac-sim-3d-smooth-wires.png http://127.0.0.1:8002/web-simulator.html
+```
+
+Screenshot terakhir yang berhasil dibuat:
+
+```text
+/tmp/ac-sim-3d-smooth-wires.png
+```
+
 Untuk firmware, validasi terbaik tetap lewat Wokwi karena custom chip dan Arduino core ESP32-S3 dijalankan di sana.
 
 ## Prioritas Jika Melanjutkan
@@ -413,5 +507,5 @@ Untuk firmware, validasi terbaik tetap lewat Wokwi karena custom chip dan Arduin
 2. Jika memperbaiki simulator web, samakan perilaku dengan firmware.
 3. Jika user bertanya soal relay, jawab dengan command spesifik `off1` sampai `off4` atau `on1` sampai `on4`.
 4. Jika user meminta grafik, cek langsung waveform V/I lane dan Pavg graph.
-5. Jika user meminta wiring, cek visual browser, bukan hanya struktur data kabel.
+5. Jika user meminta wiring, cek visual browser, bukan hanya struktur data kabel. Untuk 3D, perhatikan rute bawah board, belokan smooth, dan klik-highlight kabel.
 6. Jika user meminta integrasi hardware nyata, revisi pin ADC dan kalibrasi sensor terlebih dahulu.

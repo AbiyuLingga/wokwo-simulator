@@ -19,6 +19,7 @@ For detailed continuation notes for the next AI agent, see [`AI_HANDOFF.md`](AI_
 - Real power calculation from `Pavg = average(V(t) * I(t))`.
 - 5-second sampling window per load, measured sequentially.
 - Browser simulator with draggable wiring, relay controls, waveform charts, and Pavg graph.
+- 3D WebGL browser viewer with four load pods arranged 2x2, larger household fan/switch device groups, clickable 3D switches, under-board pin-to-pin cable lanes with smooth bends, and clickable wire highlighting.
 - Optional Supabase dashboard for live readings and relay control.
 
 ## Quick Start
@@ -35,6 +36,8 @@ Open:
 ```text
 http://127.0.0.1:8000/web-simulator.html
 ```
+
+The web simulator opens in 3D mode by default. Use the `2D` button in the top bar to return to the editable wiring view, or `3D` to go back to the CRUMB-style WebGL viewer. The bundled 3D asset and library notes are in `assets/3d/ATTRIBUTION.md`.
 
 For the Supabase dashboard:
 

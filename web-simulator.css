@@ -164,20 +164,88 @@ input {
   padding: 0 12px;
 }
 
+.mode-button {
+  min-width: 44px;
+}
+
+.mode-button.active {
+  background: var(--accent);
+  border-color: #4f9cff;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.22);
+}
+
 .canvas-shell {
+  background: #191c20;
   min-height: 0;
   overflow: hidden;
   position: relative;
 }
 
-.canvas-tools {
+.scene3d-shell {
+  background:
+    radial-gradient(circle at 52% 42%, rgba(255, 255, 255, 0.045), transparent 34%),
+    linear-gradient(180deg, #20242a 0%, #14171b 100%);
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: 4;
+}
+
+.scene3d-shell canvas {
+  display: block;
+  height: 100%;
+  outline: 0;
+  width: 100%;
+}
+
+.scene3d-hud {
+  align-items: center;
   display: flex;
+  gap: 8px;
+  left: 14px;
+  pointer-events: auto;
+  position: absolute;
+  top: 14px;
+  z-index: 8;
+}
+
+.scene3d-hud span,
+.scene3d-fallback {
+  background: rgba(17, 20, 25, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: #dce6f2;
+  font-size: 12px;
+  line-height: 1.35;
+  padding: 9px 10px;
+}
+
+.scene3d-fallback {
+  left: 50%;
+  max-width: 280px;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+}
+
+body.show-2d .scene3d-shell {
+  display: none;
+}
+
+.canvas-tools {
+  display: none;
   flex-wrap: wrap;
   gap: 8px;
   left: 14px;
   position: absolute;
   top: 14px;
   z-index: 12;
+}
+
+body.show-2d .canvas-tools {
+  display: flex;
 }
 
 .canvas-tools .text-button {
@@ -207,6 +275,14 @@ input {
   min-height: 0;
   overflow: auto;
   position: relative;
+}
+
+.legacy-2d-shell {
+  display: none;
+}
+
+body.show-2d .legacy-2d-shell {
+  display: block;
 }
 
 .canvas-stage.panning,

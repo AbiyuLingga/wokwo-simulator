@@ -4,7 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Local AC Power Simulator</title>
-    <link rel="stylesheet" href="web-simulator.css?v=zmpt-gpio10-1" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="web-simulator.css?v=3d-view-4" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.js"
+        }
+      }
+    </script>
   </head>
   <body>
     <div class="app-shell">
@@ -24,6 +32,8 @@
             <span>AC Power Monitoring ESP32-S3</span>
           </div>
           <div class="sim-actions">
+            <button class="text-button mode-button active" id="view3dButton" type="button">3D</button>
+            <button class="text-button mode-button" id="view2dButton" type="button">2D</button>
             <button class="icon-button primary" id="runButton" type="button" title="Start simulation" aria-label="Start simulation">
               <span id="runIcon">▶</span>
             </button>
@@ -33,6 +43,14 @@
         </header>
 
         <section class="canvas-shell" aria-label="Circuit canvas">
+          <section class="scene3d-shell active" id="scene3dShell" aria-label="3D circuit viewer">
+            <canvas id="scene3dCanvas"></canvas>
+            <div class="scene3d-hud">
+              <span id="scene3dStatus">WebGL high-performance mode</span>
+              <button class="text-button" id="scene3dResetCamera" type="button">Reset Kamera</button>
+            </div>
+            <div class="scene3d-fallback" id="scene3dFallback" hidden>WebGL tidak tersedia. Gunakan mode 2D.</div>
+          </section>
           <div class="canvas-tools">
             <button class="tool-button" id="zoomOutButton" type="button" title="Zoom out" aria-label="Zoom out">−</button>
             <button class="tool-button" id="zoomInButton" type="button" title="Zoom in" aria-label="Zoom in">+</button>
@@ -40,7 +58,7 @@
             <button class="tool-button" id="deleteWireButton" type="button" title="Delete selected wire" aria-label="Delete selected wire">×</button>
             <button class="text-button" id="autoRouteButton" type="button">Auto</button>
           </div>
-          <div class="canvas-stage" id="canvasStage">
+          <div class="canvas-stage legacy-2d-shell" id="canvasStage">
             <div class="circuit" id="circuit">
               <svg class="wire-layer" viewBox="0 0 3400 1700" aria-hidden="true">
                 <defs>
@@ -422,6 +440,7 @@
       </aside>
     </div>
 
-    <script src="web-simulator.js?v=zmpt-gpio10-1"></script>
+    <script src="web-simulator.js?v=3d-view-5"></script>
+    <script type="module" src="web-simulator-3d.js?v=3d-view-4"></script>
   </body>
 </html>
