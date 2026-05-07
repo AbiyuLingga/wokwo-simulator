@@ -215,10 +215,10 @@ input {
 }
 
 .circuit {
-  height: 3050px;
+  height: 1700px;
   position: relative;
   transform-origin: top left;
-  width: 2200px;
+  width: 3400px;
 }
 
 .wire-layer {
@@ -664,6 +664,7 @@ input {
 .fan {
   height: 170px;
   width: 170px;
+  z-index: 4;
 }
 
 .fan1 {
@@ -878,6 +879,7 @@ input {
   height: 62px;
   padding: 7px 9px;
   width: 118px;
+  z-index: 4;
 }
 
 .wall-switch:focus-visible {

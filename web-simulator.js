@@ -57,29 +57,29 @@ const wireColors = {
 };
 
 const parts = {
-  esp: { x: 70, y: 520 },
-  mux: { x: 520, y: 685 },
-  ac1: { x: 1010, y: 70 },
-  fan1: { x: 1680, y: 90 },
-  acs1: { x: 1080, y: 360 },
-  zmpt1: { x: 1080, y: 690 },
-  relay1: { x: 1480, y: 395 },
-  sw1: { x: 1878, y: 144 },
-  ac2: { x: 1010, y: 1040 },
-  fan2: { x: 1680, y: 1070 },
-  acs2: { x: 1080, y: 1190 },
-  relay2: { x: 1480, y: 1240 },
-  sw2: { x: 1878, y: 1124 },
-  ac3: { x: 1010, y: 1730 },
-  fan3: { x: 1680, y: 1760 },
-  acs3: { x: 1080, y: 1880 },
-  relay3: { x: 1480, y: 1930 },
-  sw3: { x: 1878, y: 1814 },
-  ac4: { x: 1010, y: 2420 },
-  fan4: { x: 1680, y: 2450 },
-  acs4: { x: 1080, y: 2570 },
-  relay4: { x: 1480, y: 2620 },
-  sw4: { x: 1878, y: 2504 },
+  esp: { x: 70, y: 510 },
+  mux: { x: 520, y: 665 },
+  ac1: { x: 980, y: 110 },
+  fan1: { x: 1710, y: 85 },
+  acs1: { x: 1050, y: 400 },
+  zmpt1: { x: 1050, y: 710 },
+  relay1: { x: 1450, y: 435 },
+  sw1: { x: 1736, y: 270 },
+  ac2: { x: 2180, y: 110 },
+  fan2: { x: 2910, y: 85 },
+  acs2: { x: 2250, y: 400 },
+  relay2: { x: 2650, y: 435 },
+  sw2: { x: 2936, y: 270 },
+  ac3: { x: 980, y: 910 },
+  fan3: { x: 1710, y: 885 },
+  acs3: { x: 1050, y: 1200 },
+  relay3: { x: 1450, y: 1235 },
+  sw3: { x: 1736, y: 1070 },
+  ac4: { x: 2180, y: 910 },
+  fan4: { x: 2910, y: 885 },
+  acs4: { x: 2250, y: 1200 },
+  relay4: { x: 2650, y: 1235 },
+  sw4: { x: 2936, y: 1070 },
   rail: { x: 0, y: 0 },
 };
 
@@ -289,28 +289,28 @@ const pinMap = {
     GND: { x: 118, y: 31, kind: "ground" },
   },
   rail: {
-    V5_TOP: { x: 960, y: 250, kind: "power-red" },
-    V5_BOTTOM: { x: 960, y: 2860, kind: "power-red" },
-    GND_TOP: { x: 1000, y: 250, kind: "ground" },
-    GND_BOTTOM: { x: 1000, y: 2860, kind: "ground" },
-    V5_ACS1: { x: 960, y: 550, kind: "power-red" },
-    V5_ZMPT1: { x: 960, y: 880, kind: "power-red" },
-    V5_RELAY1: { x: 960, y: 413, kind: "power-red" },
-    V5_ACS2: { x: 960, y: 1380, kind: "power-red" },
-    V5_RELAY2: { x: 960, y: 1258, kind: "power-red" },
-    V5_ACS3: { x: 960, y: 2070, kind: "power-red" },
-    V5_RELAY3: { x: 960, y: 1948, kind: "power-red" },
-    V5_ACS4: { x: 960, y: 2760, kind: "power-red" },
-    V5_RELAY4: { x: 960, y: 2638, kind: "power-red" },
-    GND_ACS1: { x: 1000, y: 550, kind: "ground" },
-    GND_ZMPT1: { x: 1000, y: 880, kind: "ground" },
-    GND_RELAY1: { x: 1000, y: 441, kind: "ground" },
-    GND_ACS2: { x: 1000, y: 1380, kind: "ground" },
-    GND_RELAY2: { x: 1000, y: 1286, kind: "ground" },
-    GND_ACS3: { x: 1000, y: 2070, kind: "ground" },
-    GND_RELAY3: { x: 1000, y: 1976, kind: "ground" },
-    GND_ACS4: { x: 1000, y: 2760, kind: "ground" },
-    GND_RELAY4: { x: 1000, y: 2666, kind: "ground" },
+    V5_TOP: { x: 900, y: 230, kind: "power-red" },
+    V5_BOTTOM: { x: 900, y: 1510, kind: "power-red" },
+    GND_TOP: { x: 940, y: 230, kind: "ground" },
+    GND_BOTTOM: { x: 940, y: 1510, kind: "ground" },
+    V5_ACS1: { x: 900, y: 590, kind: "power-red" },
+    V5_ZMPT1: { x: 900, y: 900, kind: "power-red" },
+    V5_RELAY1: { x: 900, y: 453, kind: "power-red" },
+    V5_ACS2: { x: 900, y: 590, kind: "power-red" },
+    V5_RELAY2: { x: 900, y: 453, kind: "power-red" },
+    V5_ACS3: { x: 900, y: 1390, kind: "power-red" },
+    V5_RELAY3: { x: 900, y: 1253, kind: "power-red" },
+    V5_ACS4: { x: 900, y: 1390, kind: "power-red" },
+    V5_RELAY4: { x: 900, y: 1253, kind: "power-red" },
+    GND_ACS1: { x: 940, y: 590, kind: "ground" },
+    GND_ZMPT1: { x: 940, y: 900, kind: "ground" },
+    GND_RELAY1: { x: 940, y: 481, kind: "ground" },
+    GND_ACS2: { x: 940, y: 590, kind: "ground" },
+    GND_RELAY2: { x: 940, y: 481, kind: "ground" },
+    GND_ACS3: { x: 940, y: 1390, kind: "ground" },
+    GND_RELAY3: { x: 940, y: 1281, kind: "ground" },
+    GND_ACS4: { x: 940, y: 1390, kind: "ground" },
+    GND_RELAY4: { x: 940, y: 1281, kind: "ground" },
   },
 };
 
@@ -1113,29 +1113,29 @@ function peripheralRoute(from, to, x, y) {
 
 function resetPartLayout() {
   Object.assign(parts, {
-    esp: { x: 70, y: 520 },
-    mux: { x: 520, y: 685 },
-    ac1: { x: 1010, y: 70 },
-    fan1: { x: 1680, y: 90 },
-    acs1: { x: 1080, y: 360 },
-    zmpt1: { x: 1080, y: 690 },
-    relay1: { x: 1480, y: 395 },
-    sw1: { x: 1878, y: 144 },
-    ac2: { x: 1010, y: 1040 },
-    fan2: { x: 1680, y: 1070 },
-    acs2: { x: 1080, y: 1190 },
-    relay2: { x: 1480, y: 1240 },
-    sw2: { x: 1878, y: 1124 },
-    ac3: { x: 1010, y: 1730 },
-    fan3: { x: 1680, y: 1760 },
-    acs3: { x: 1080, y: 1880 },
-    relay3: { x: 1480, y: 1930 },
-    sw3: { x: 1878, y: 1814 },
-    ac4: { x: 1010, y: 2420 },
-    fan4: { x: 1680, y: 2450 },
-    acs4: { x: 1080, y: 2570 },
-    relay4: { x: 1480, y: 2620 },
-    sw4: { x: 1878, y: 2504 },
+    esp: { x: 70, y: 510 },
+    mux: { x: 520, y: 665 },
+    ac1: { x: 980, y: 110 },
+    fan1: { x: 1710, y: 85 },
+    acs1: { x: 1050, y: 400 },
+    zmpt1: { x: 1050, y: 710 },
+    relay1: { x: 1450, y: 435 },
+    sw1: { x: 1736, y: 270 },
+    ac2: { x: 2180, y: 110 },
+    fan2: { x: 2910, y: 85 },
+    acs2: { x: 2250, y: 400 },
+    relay2: { x: 2650, y: 435 },
+    sw2: { x: 2936, y: 270 },
+    ac3: { x: 980, y: 910 },
+    fan3: { x: 1710, y: 885 },
+    acs3: { x: 1050, y: 1200 },
+    relay3: { x: 1450, y: 1235 },
+    sw3: { x: 1736, y: 1070 },
+    ac4: { x: 2180, y: 910 },
+    fan4: { x: 2910, y: 885 },
+    acs4: { x: 2250, y: 1200 },
+    relay4: { x: 2650, y: 1235 },
+    sw4: { x: 2936, y: 1070 },
     rail: { x: 0, y: 0 },
   });
 }
@@ -1153,14 +1153,14 @@ function routeForWire(wire, index) {
     return referenceRouteForWire(wire, routeVia(from, to, [{ x: 58, y: from.y }, { x: 58, y: 235 }, { x: to.x, y: 235 }]), true);
   }
   const railRoutes = {
-    "rail:V5_RELAY1->relay1:VCC": [{ x: 960, y: 330 }, { x: 1440, y: 330 }, { x: 1440, y: to.y }],
-    "rail:GND_RELAY1->relay1:GND": [{ x: 1000, y: 345 }, { x: 1432, y: 345 }, { x: 1432, y: to.y }],
-    "rail:V5_RELAY2->relay2:VCC": [{ x: 960, y: 1168 }, { x: 1440, y: 1168 }, { x: 1440, y: to.y }],
-    "rail:GND_RELAY2->relay2:GND": [{ x: 1000, y: 1183 }, { x: 1432, y: 1183 }, { x: 1432, y: to.y }],
-    "rail:V5_RELAY3->relay3:VCC": [{ x: 960, y: 1858 }, { x: 1440, y: 1858 }, { x: 1440, y: to.y }],
-    "rail:GND_RELAY3->relay3:GND": [{ x: 1000, y: 1873 }, { x: 1432, y: 1873 }, { x: 1432, y: to.y }],
-    "rail:V5_RELAY4->relay4:VCC": [{ x: 960, y: 2548 }, { x: 1440, y: 2548 }, { x: 1440, y: to.y }],
-    "rail:GND_RELAY4->relay4:GND": [{ x: 1000, y: 2563 }, { x: 1432, y: 2563 }, { x: 1432, y: to.y }],
+    "rail:V5_RELAY1->relay1:VCC": [{ x: 900, y: 340 }, { x: 1410, y: 340 }, { x: 1410, y: to.y }],
+    "rail:GND_RELAY1->relay1:GND": [{ x: 940, y: 360 }, { x: 1402, y: 360 }, { x: 1402, y: to.y }],
+    "rail:V5_RELAY2->relay2:VCC": [{ x: 900, y: 315 }, { x: 2610, y: 315 }, { x: 2610, y: to.y }],
+    "rail:GND_RELAY2->relay2:GND": [{ x: 940, y: 335 }, { x: 2602, y: 335 }, { x: 2602, y: to.y }],
+    "rail:V5_RELAY3->relay3:VCC": [{ x: 900, y: 1140 }, { x: 1410, y: 1140 }, { x: 1410, y: to.y }],
+    "rail:GND_RELAY3->relay3:GND": [{ x: 940, y: 1160 }, { x: 1402, y: 1160 }, { x: 1402, y: to.y }],
+    "rail:V5_RELAY4->relay4:VCC": [{ x: 900, y: 1115 }, { x: 2610, y: 1115 }, { x: 2610, y: to.y }],
+    "rail:GND_RELAY4->relay4:GND": [{ x: 940, y: 1135 }, { x: 2602, y: 1135 }, { x: 2602, y: to.y }],
   };
   if (railRoutes[key]) {
     return referenceRouteForWire(wire, routeVia(from, to, railRoutes[key]), true);
@@ -1169,14 +1169,14 @@ function routeForWire(wire, index) {
     return referenceRouteForWire(wire, [], true);
   }
   const switchRoutes = {
-    "esp:30->sw1:SIG": [{ x: 335, y: from.y }, { x: 335, y: 38 }, { x: 1840, y: 38 }, { x: 1840, y: to.y }],
-    "esp:GND->sw1:GND": [{ x: 92, y: from.y }, { x: 92, y: 74 }, { x: 2032, y: 74 }, { x: 2032, y: to.y }],
-    "esp:31->sw2:SIG": [{ x: 320, y: from.y }, { x: 320, y: 1018 }, { x: 1840, y: 1018 }, { x: 1840, y: to.y }],
-    "esp:GND->sw2:GND": [{ x: 114, y: from.y }, { x: 114, y: 1054 }, { x: 2032, y: 1054 }, { x: 2032, y: to.y }],
-    "esp:32->sw3:SIG": [{ x: 560, y: from.y }, { x: 560, y: 1708 }, { x: 1840, y: 1708 }, { x: 1840, y: to.y }],
-    "esp:GND->sw3:GND": [{ x: 136, y: from.y }, { x: 136, y: 1744 }, { x: 2032, y: 1744 }, { x: 2032, y: to.y }],
-    "esp:33->sw4:SIG": [{ x: 590, y: from.y }, { x: 590, y: 2398 }, { x: 1840, y: 2398 }, { x: 1840, y: to.y }],
-    "esp:GND->sw4:GND": [{ x: 158, y: from.y }, { x: 158, y: 2434 }, { x: 2032, y: 2434 }, { x: 2032, y: to.y }],
+    "esp:30->sw1:SIG": [{ x: 335, y: from.y }, { x: 335, y: 366 }, { x: 1700, y: 366 }, { x: 1700, y: to.y }],
+    "esp:GND->sw1:GND": [{ x: 92, y: from.y }, { x: 92, y: 402 }, { x: 1890, y: 402 }, { x: 1890, y: to.y }],
+    "esp:31->sw2:SIG": [{ x: 320, y: from.y }, { x: 320, y: 366 }, { x: 2900, y: 366 }, { x: 2900, y: to.y }],
+    "esp:GND->sw2:GND": [{ x: 114, y: from.y }, { x: 114, y: 402 }, { x: 3090, y: 402 }, { x: 3090, y: to.y }],
+    "esp:32->sw3:SIG": [{ x: 560, y: from.y }, { x: 560, y: 1366 }, { x: 1700, y: 1366 }, { x: 1700, y: to.y }],
+    "esp:GND->sw3:GND": [{ x: 136, y: from.y }, { x: 136, y: 1402 }, { x: 1890, y: 1402 }, { x: 1890, y: to.y }],
+    "esp:33->sw4:SIG": [{ x: 590, y: from.y }, { x: 590, y: 1366 }, { x: 2900, y: 1366 }, { x: 2900, y: to.y }],
+    "esp:GND->sw4:GND": [{ x: 158, y: from.y }, { x: 158, y: 1402 }, { x: 3090, y: 1402 }, { x: 3090, y: to.y }],
   };
   if (switchRoutes[key]) {
     return referenceRouteForWire(wire, routeVia(from, to, switchRoutes[key]), true);
@@ -1197,9 +1197,9 @@ function routeForWire(wire, index) {
 
   const laneMap = {
     "mux:C0->acs1:OUT": { x: 735 },
-    "mux:C1->acs2:OUT": { x: 775 },
-    "mux:C2->acs3:OUT": { x: 815 },
-    "mux:C3->acs4:OUT": { x: 855 },
+    "mux:C1->acs2:OUT": { x: 2060 },
+    "mux:C2->acs3:OUT": { x: 775 },
+    "mux:C3->acs4:OUT": { x: 2100 },
   };
   if (laneMap[key]) {
     return referenceRouteForWire(wire, verticalLane(from, to, laneMap[key].x), false);
@@ -1213,10 +1213,10 @@ function routeForWire(wire, index) {
   }
 
   const controlRoutes = {
-    "esp:39->relay1:IN": [{ x: 460, y: from.y }, { x: 460, y: 300 }, { x: 1340, y: 300 }, { x: 1340, y: to.y }],
-    "esp:38->relay2:IN": [{ x: 430, y: from.y }, { x: 430, y: 1165 }, { x: 1340, y: 1165 }, { x: 1340, y: to.y }],
-    "esp:37->relay3:IN": [{ x: 500, y: from.y }, { x: 500, y: 1855 }, { x: 1340, y: 1855 }, { x: 1340, y: to.y }],
-    "esp:35->relay4:IN": [{ x: 530, y: from.y }, { x: 530, y: 2545 }, { x: 1340, y: 2545 }, { x: 1340, y: to.y }],
+    "esp:39->relay1:IN": [{ x: 460, y: from.y }, { x: 460, y: 320 }, { x: 1310, y: 320 }, { x: 1310, y: to.y }],
+    "esp:38->relay2:IN": [{ x: 430, y: from.y }, { x: 430, y: 300 }, { x: 2510, y: 300 }, { x: 2510, y: to.y }],
+    "esp:37->relay3:IN": [{ x: 500, y: from.y }, { x: 500, y: 1120 }, { x: 1310, y: 1120 }, { x: 1310, y: to.y }],
+    "esp:35->relay4:IN": [{ x: 530, y: from.y }, { x: 530, y: 1100 }, { x: 2510, y: 1100 }, { x: 2510, y: to.y }],
   };
   if (controlRoutes[key]) {
     return referenceRouteForWire(wire, routeVia(from, to, controlRoutes[key]), true);
@@ -1226,21 +1226,21 @@ function routeForWire(wire, index) {
     "esp:5V->acs1:VCC": { x: 18, y: 190 },
     "esp:5V->zmpt1:VCC": { x: 30, y: 220 },
     "esp:5V->relay1:VCC": { x: 42, y: 250 },
-    "esp:5V->acs2:VCC": { x: 18, y: 1795 },
-    "esp:5V->relay2:VCC": { x: 42, y: 1855 },
-    "esp:5V->acs3:VCC": { x: 18, y: 2070 },
-    "esp:5V->relay3:VCC": { x: 42, y: 2100 },
-    "esp:5V->acs4:VCC": { x: 18, y: 2760 },
-    "esp:5V->relay4:VCC": { x: 42, y: 2790 },
+    "esp:5V->acs2:VCC": { x: 18, y: 590 },
+    "esp:5V->relay2:VCC": { x: 42, y: 620 },
+    "esp:5V->acs3:VCC": { x: 18, y: 1390 },
+    "esp:5V->relay3:VCC": { x: 42, y: 1420 },
+    "esp:5V->acs4:VCC": { x: 18, y: 1390 },
+    "esp:5V->relay4:VCC": { x: 42, y: 1420 },
     "esp:GND->acs1:GND": { x: 54, y: 175 },
     "esp:GND->zmpt1:GND": { x: 66, y: 205 },
     "esp:GND->relay1:GND": { x: 58, y: 235 },
-    "esp:GND->acs2:GND": { x: 54, y: 1780 },
-    "esp:GND->relay2:GND": { x: 58, y: 1840 },
-    "esp:GND->acs3:GND": { x: 54, y: 2055 },
-    "esp:GND->relay3:GND": { x: 58, y: 2085 },
-    "esp:GND->acs4:GND": { x: 54, y: 2745 },
-    "esp:GND->relay4:GND": { x: 58, y: 2775 },
+    "esp:GND->acs2:GND": { x: 54, y: 575 },
+    "esp:GND->relay2:GND": { x: 58, y: 605 },
+    "esp:GND->acs3:GND": { x: 54, y: 1375 },
+    "esp:GND->relay3:GND": { x: 58, y: 1405 },
+    "esp:GND->acs4:GND": { x: 54, y: 1375 },
+    "esp:GND->relay4:GND": { x: 58, y: 1405 },
   };
   if (powerTargets[key]) {
     const { x, y } = powerTargets[key];
@@ -1248,24 +1248,24 @@ function routeForWire(wire, index) {
   }
 
   const acRoutes = {
-    "ac1:L->relay1:NO": [{ x: 940, y: from.y }, { x: 940, y: 315 }, { x: 1420, y: 315 }, { x: 1420, y: to.y }],
-    "relay1:COM->acs1:LINE_IN": [{ x: 1665, y: from.y }, { x: 1665, y: 600 }, { x: 1040, y: 600 }, { x: 1040, y: to.y }],
-    "acs1:LINE_OUT->fan1:L": [{ x: 1300, y: from.y }, { x: 1300, y: 300 }, { x: 1740, y: 300 }, { x: 1740, y: to.y }],
-    "ac1:N->fan1:N": [{ x: 1250, y: from.y }, { x: 1250, y: 35 }, { x: 1875, y: 35 }, { x: 1875, y: to.y }, { x: to.x, y: to.y }],
-    "ac1:L->zmpt1:AC_L": [{ x: 930, y: from.y }, { x: 930, y: to.y }],
-    "ac1:N->zmpt1:AC_N": [{ x: 1260, y: from.y }, { x: 1260, y: to.y }],
-    "ac2:L->relay2:NO": [{ x: 940, y: from.y }, { x: 940, y: 1170 }, { x: 1420, y: 1170 }, { x: 1420, y: to.y }],
-    "relay2:COM->acs2:LINE_IN": [{ x: 1665, y: from.y }, { x: 1665, y: 1430 }, { x: 1040, y: 1430 }, { x: 1040, y: to.y }],
-    "acs2:LINE_OUT->fan2:L": [{ x: 1300, y: from.y }, { x: 1300, y: 1365 }, { x: 1740, y: 1365 }, { x: 1740, y: to.y }],
-    "ac2:N->fan2:N": [{ x: 1250, y: from.y }, { x: 1250, y: 995 }, { x: 1875, y: 995 }, { x: 1875, y: to.y }, { x: to.x, y: to.y }],
-    "ac3:L->relay3:NO": [{ x: 940, y: from.y }, { x: 940, y: 1860 }, { x: 1420, y: 1860 }, { x: 1420, y: to.y }],
-    "relay3:COM->acs3:LINE_IN": [{ x: 1665, y: from.y }, { x: 1665, y: 2120 }, { x: 1040, y: 2120 }, { x: 1040, y: to.y }],
-    "acs3:LINE_OUT->fan3:L": [{ x: 1300, y: from.y }, { x: 1300, y: 2055 }, { x: 1740, y: 2055 }, { x: 1740, y: to.y }],
-    "ac3:N->fan3:N": [{ x: 1250, y: from.y }, { x: 1250, y: 1685 }, { x: 1875, y: 1685 }, { x: 1875, y: to.y }, { x: to.x, y: to.y }],
-    "ac4:L->relay4:NO": [{ x: 940, y: from.y }, { x: 940, y: 2550 }, { x: 1420, y: 2550 }, { x: 1420, y: to.y }],
-    "relay4:COM->acs4:LINE_IN": [{ x: 1665, y: from.y }, { x: 1665, y: 2810 }, { x: 1040, y: 2810 }, { x: 1040, y: to.y }],
-    "acs4:LINE_OUT->fan4:L": [{ x: 1300, y: from.y }, { x: 1300, y: 2745 }, { x: 1740, y: 2745 }, { x: 1740, y: to.y }],
-    "ac4:N->fan4:N": [{ x: 1250, y: from.y }, { x: 1250, y: 2375 }, { x: 1875, y: 2375 }, { x: 1875, y: to.y }, { x: to.x, y: to.y }],
+    "ac1:L->relay1:NO": [{ x: 910, y: from.y }, { x: 910, y: 355 }, { x: 1390, y: 355 }, { x: 1390, y: to.y }],
+    "relay1:COM->acs1:LINE_IN": [{ x: 1635, y: from.y }, { x: 1635, y: 640 }, { x: 1010, y: 640 }, { x: 1010, y: to.y }],
+    "acs1:LINE_OUT->fan1:L": [{ x: 1270, y: from.y }, { x: 1270, y: 305 }, { x: 1770, y: 305 }, { x: 1770, y: to.y }],
+    "ac1:N->fan1:N": [{ x: 1220, y: from.y }, { x: 1220, y: 35 }, { x: 1836, y: 35 }, { x: 1836, y: to.y }, { x: to.x, y: to.y }],
+    "ac1:L->zmpt1:AC_L": [{ x: 900, y: from.y }, { x: 900, y: to.y }],
+    "ac1:N->zmpt1:AC_N": [{ x: 1230, y: from.y }, { x: 1230, y: to.y }],
+    "ac2:L->relay2:NO": [{ x: 2110, y: from.y }, { x: 2110, y: 355 }, { x: 2590, y: 355 }, { x: 2590, y: to.y }],
+    "relay2:COM->acs2:LINE_IN": [{ x: 2835, y: from.y }, { x: 2835, y: 640 }, { x: 2210, y: 640 }, { x: 2210, y: to.y }],
+    "acs2:LINE_OUT->fan2:L": [{ x: 2470, y: from.y }, { x: 2470, y: 305 }, { x: 2970, y: 305 }, { x: 2970, y: to.y }],
+    "ac2:N->fan2:N": [{ x: 2420, y: from.y }, { x: 2420, y: 35 }, { x: 3036, y: 35 }, { x: 3036, y: to.y }, { x: to.x, y: to.y }],
+    "ac3:L->relay3:NO": [{ x: 910, y: from.y }, { x: 910, y: 1155 }, { x: 1390, y: 1155 }, { x: 1390, y: to.y }],
+    "relay3:COM->acs3:LINE_IN": [{ x: 1635, y: from.y }, { x: 1635, y: 1440 }, { x: 1010, y: 1440 }, { x: 1010, y: to.y }],
+    "acs3:LINE_OUT->fan3:L": [{ x: 1270, y: from.y }, { x: 1270, y: 1105 }, { x: 1770, y: 1105 }, { x: 1770, y: to.y }],
+    "ac3:N->fan3:N": [{ x: 1220, y: from.y }, { x: 1220, y: 835 }, { x: 1836, y: 835 }, { x: 1836, y: to.y }, { x: to.x, y: to.y }],
+    "ac4:L->relay4:NO": [{ x: 2110, y: from.y }, { x: 2110, y: 1155 }, { x: 2590, y: 1155 }, { x: 2590, y: to.y }],
+    "relay4:COM->acs4:LINE_IN": [{ x: 2835, y: from.y }, { x: 2835, y: 1440 }, { x: 2210, y: 1440 }, { x: 2210, y: to.y }],
+    "acs4:LINE_OUT->fan4:L": [{ x: 2470, y: from.y }, { x: 2470, y: 1105 }, { x: 2970, y: 1105 }, { x: 2970, y: to.y }],
+    "ac4:N->fan4:N": [{ x: 2420, y: from.y }, { x: 2420, y: 835 }, { x: 3036, y: 835 }, { x: 3036, y: to.y }, { x: to.x, y: to.y }],
   };
   if (acRoutes[key]) {
     return referenceRouteForWire(wire, routeVia(from, to, acRoutes[key]), true);
@@ -2148,15 +2148,15 @@ function printHelp() {
 }
 
 function setZoom(value) {
-  zoom = Math.max(0.42, Math.min(1.12, value));
+  zoom = Math.max(0.28, Math.min(1.12, value));
   updateVisualState();
 }
 
 function fitCircuit() {
   const stageWidth = canvasStage.clientWidth;
   const stageHeight = canvasStage.clientHeight;
-  const scaleX = stageWidth / 2200;
-  const scaleY = stageHeight / 1900;
+  const scaleX = stageWidth / 3400;
+  const scaleY = stageHeight / 1700;
   setZoom(Math.min(scaleX, scaleY) * 0.94);
   canvasStage.scrollTo({ left: 0, top: 0, behavior: "smooth" });
 }
