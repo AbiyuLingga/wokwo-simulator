@@ -159,6 +159,96 @@ input {
   font-weight: 800;
 }
 
+.primary-button,
+.secondary-button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 34px;
+  padding: 0 14px;
+}
+
+.primary-button {
+  background: var(--run);
+  border-color: #23c466;
+  color: #082313;
+}
+
+.secondary-button {
+  background: #333840;
+}
+
+.tutorial-layer {
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 80;
+}
+
+.tutorial-scrim {
+  background: rgba(6, 8, 11, 0.58);
+  inset: 0;
+  position: absolute;
+}
+
+.tutorial-outline {
+  border: 2px solid #ffe66a;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 9999px rgba(6, 8, 11, 0.3),
+    0 0 22px rgba(255, 230, 106, 0.75);
+  position: absolute;
+  transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
+}
+
+.tutorial-card {
+  background: #171d24;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42);
+  color: var(--text);
+  pointer-events: auto;
+  position: absolute;
+  transition: left 0.18s ease, top 0.18s ease;
+  z-index: 2;
+}
+
+.tutorial-card h2 {
+  font-size: 18px;
+  margin: 0;
+  padding: 0 16px;
+}
+
+.tutorial-kicker,
+.tutorial-body {
+  margin: 0;
+  padding: 0 16px;
+}
+
+.tutorial-kicker {
+  color: #8ec8ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  padding-top: 14px;
+}
+
+.tutorial-body {
+  color: #d6e1ee;
+  font-size: 13px;
+  line-height: 1.45;
+  padding-top: 8px;
+}
+
+.tutorial-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 14px 16px 16px;
+}
+
 .text-button {
   height: 34px;
   padding: 0 12px;
@@ -196,6 +286,214 @@ input {
   height: 100%;
   outline: 0;
   width: 100%;
+}
+
+.scene3d-shell.pseudo3d-active canvas {
+  display: none;
+}
+
+.pseudo3d-stage {
+  background:
+    radial-gradient(circle at 50% 26%, rgba(76, 183, 255, 0.12), transparent 32%),
+    linear-gradient(180deg, #22262c 0%, #14171b 100%);
+  color: #eaf2fb;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.pseudo3d-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  left: 50%;
+  max-width: min(980px, calc(100% - 60px));
+  perspective: 1100px;
+  position: absolute;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.pseudo3d-core {
+  align-items: center;
+  background: linear-gradient(145deg, #1d7e62, #0f4136);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.32);
+  display: flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 10px;
+  justify-content: center;
+  left: 50%;
+  min-height: 58px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 74px;
+  transform: translateX(-50%) skewX(-12deg);
+  width: min(360px, calc(100% - 70px));
+}
+
+.pseudo3d-core span {
+  background: rgba(9, 15, 20, 0.45);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.pseudo3d-card {
+  background: linear-gradient(145deg, #29323c, #171d24);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow:
+    0 24px 34px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  min-height: 158px;
+  overflow: hidden;
+  position: relative;
+  transform: rotateX(54deg) rotateZ(-33deg);
+  transform-style: preserve-3d;
+}
+
+.pseudo3d-card::before {
+  background:
+    linear-gradient(90deg, transparent 0 14%, rgba(245, 34, 45, 0.85) 14% 17%, transparent 17% 51%, rgba(40, 152, 221, 0.85) 51% 54%, transparent 54%),
+    linear-gradient(0deg, transparent 0 46%, rgba(53, 194, 83, 0.78) 46% 49%, transparent 49%);
+  content: "";
+  inset: 0;
+  opacity: 0.58;
+  position: absolute;
+}
+
+.pseudo3d-stage.clean-active .pseudo3d-card::before {
+  opacity: 0.08;
+}
+
+.pseudo3d-stage.clean-active .pseudo3d-core::after {
+  background: #f5222d;
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(245, 34, 45, 0.7);
+  content: "ESP 3V3 -> CD4051 VDD";
+  font-size: 11px;
+  font-weight: 800;
+  left: 50%;
+  padding: 5px 12px;
+  position: absolute;
+  top: 68px;
+  transform: translateX(-50%) skewX(12deg);
+  white-space: nowrap;
+}
+
+.pseudo3d-card.is-active::before {
+  animation: pseudoPulse 0.9s linear infinite;
+  opacity: 0.95;
+}
+
+.pseudo3d-label {
+  font-size: 12px;
+  font-weight: 800;
+  left: 16px;
+  position: absolute;
+  top: 14px;
+  transform: rotateZ(33deg) rotateX(-54deg);
+}
+
+.pseudo3d-relay,
+.pseudo3d-ac,
+.pseudo3d-fan,
+.pseudo3d-switch {
+  align-items: center;
+  display: flex;
+  font-size: 10px;
+  font-weight: 800;
+  justify-content: center;
+  position: absolute;
+  transform: translateZ(18px) rotateZ(33deg) rotateX(-54deg);
+}
+
+.pseudo3d-ac {
+  background: #d8e4ef;
+  border-radius: 50%;
+  color: #17202b;
+  height: 42px;
+  left: 22px;
+  top: 62px;
+  width: 42px;
+}
+
+.pseudo3d-relay {
+  background: #1685ff;
+  border-radius: 6px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+  height: 44px;
+  left: 42%;
+  top: 54px;
+  width: 72px;
+}
+
+.pseudo3d-fan {
+  background: #111820;
+  border: 4px solid #d7e2ec;
+  border-radius: 50%;
+  height: 56px;
+  right: 28px;
+  top: 46px;
+  width: 56px;
+}
+
+.pseudo3d-fan::before,
+.pseudo3d-fan::after {
+  background: #92a4b6;
+  border-radius: 999px;
+  content: "";
+  height: 10px;
+  position: absolute;
+  width: 42px;
+}
+
+.pseudo3d-fan::after {
+  transform: rotate(90deg);
+}
+
+.pseudo3d-card.is-active.is-running .pseudo3d-fan {
+  animation: fanSpinFlat 0.45s linear infinite;
+}
+
+.pseudo3d-switch {
+  background: #e7edf5;
+  border: 0;
+  border-radius: 6px;
+  bottom: 16px;
+  color: #17202b;
+  cursor: pointer;
+  height: 34px;
+  right: 26px;
+  width: 76px;
+}
+
+.pseudo3d-card:not(.switch-on) .pseudo3d-switch {
+  background: #58606b;
+  color: #f0f4f8;
+}
+
+.pseudo3d-card:not(.relay-on) .pseudo3d-relay {
+  background: #425064;
+}
+
+@keyframes pseudoPulse {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 34px 0;
+  }
+}
+
+@keyframes fanSpinFlat {
+  to {
+    rotate: 360deg;
+  }
 }
 
 .scene3d-hud {
@@ -264,6 +562,12 @@ body.show-2d .canvas-tools {
   box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.25);
 }
 
+.text-button.active {
+  background: var(--accent);
+  border-color: #4f9cff;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.22);
+}
+
 .canvas-stage {
   background-color: #2b2d31;
   background-image:
@@ -313,6 +617,11 @@ body.show-2d .legacy-2d-shell {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 6;
+}
+
+.wire.clean-kept {
+  filter: url(#wireGlow);
+  stroke-width: 8;
 }
 
 .wire.selected {
@@ -512,14 +821,15 @@ body.show-2d .legacy-2d-shell {
   border-radius: 2px;
   color: #111;
   display: flex;
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 800;
   height: 20px;
   justify-content: center;
   line-height: 1;
   position: absolute;
   top: calc(var(--pin-y) - 10px);
-  width: 44px;
+  white-space: nowrap;
+  width: 58px;
   z-index: 3;
 }
 
@@ -529,6 +839,16 @@ body.show-2d .legacy-2d-shell {
 
 .esp-pad.right {
   right: 6px;
+}
+
+.esp-pad.important {
+  background: #ffe66a;
+  border-color: #fff4a5;
+  box-shadow: 0 0 0 2px rgba(255, 230, 106, 0.22);
+}
+
+.esp-pad.muted {
+  opacity: 0.62;
 }
 
 .usb-row {

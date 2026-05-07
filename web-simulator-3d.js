@@ -3,6 +3,7 @@ import { OrbitControls } from "./vendor/three/examples/jsm/controls/OrbitControl
 
 const canvas = document.querySelector("#scene3dCanvas");
 const shell = document.querySelector("#scene3dShell");
+const pseudo3dStage = document.querySelector("#pseudo3dStage");
 const fallback = document.querySelector("#scene3dFallback");
 const statusText = document.querySelector("#scene3dStatus");
 const resetCameraButton = document.querySelector("#scene3dResetCamera");
@@ -43,6 +44,8 @@ const sceneState = {
   hoverSwitch: null,
   hoverWire: null,
   selectedWire: null,
+  pseudoActive: false,
+  pseudoViews: [],
   running: false,
   lastTime: 0,
 };
@@ -494,8 +497,10 @@ function buildControlArea() {
   scene.add(mux);
 
   sceneState.controlPins = {
+    esp3v3: [-4.36, 0.33, -0.28],
     esp5v: [-3.55, 0.33, -0.28],
     espGnd: [-3.55, 0.33, 0.04],
+    muxVdd: [-3.47, 0.31, 0.74],
     relayGpio: [
       [-3.55, 0.34, -1.04],
       [-3.55, 0.34, -0.86],
@@ -517,8 +522,10 @@ function buildControlArea() {
     muxVoltage: [-4.18, 0.31, 1.58],
   };
 
+  addPinTerminal(scene, "3V3", sceneState.controlPins.esp3v3, colors.red, "3V3", 0.035);
   addPinTerminal(scene, "5V", sceneState.controlPins.esp5v, colors.red, "5V", 0.035);
   addPinTerminal(scene, "GND", sceneState.controlPins.espGnd, colors.blackWire, "GND", 0.035);
+  addPinTerminal(scene, "VDD", sceneState.controlPins.muxVdd, colors.red, "VDD", 0.03);
   sceneState.controlPins.relayGpio.forEach((pin, index) => {
     addPinTerminal(scene, `R${index + 1}`, pin, colors.green, `R${index + 1}`, 0.03);
   });
@@ -529,6 +536,19 @@ function buildControlArea() {
     addPinTerminal(scene, `C${index}`, pin, colors.purple, `C${index}`, 0.03);
   });
   addPinTerminal(scene, "C7", sceneState.controlPins.muxVoltage, colors.purple, "C7", 0.03);
+  scene.add(createWire(
+      [
+        sceneState.controlPins.esp3v3,
+        [-4.68, 0.38, 0.24],
+        [-4.68, 0.38, 0.74],
+        sceneState.controlPins.muxVdd,
+      ],
+      colors.red,
+      -1,
+      "essential",
+      0.015,
+      "ESP.3V3 -> CD4051.VDD"
+  ));
 }
 
 function buildLoadPod(config) {
@@ -798,6 +818,7 @@ function handleSwitchClick(event) {
 }
 
 function isWireActive(wire, state) {
+  if (wire.userData.role === "essential") return true;
   const load = state.loads[wire.userData.loadIndex];
   if (!load) return false;
   if (wire.userData.role === "ac") return Boolean(state.running && load.energized);
@@ -810,6 +831,9 @@ function isWireActive(wire, state) {
 function syncFromSimulator() {
   const state = getCurrentState();
   sceneState.running = Boolean(state.running);
+  sceneState.dynamicWires.forEach((wire) => {
+    wire.visible = !(state.cleanWireMode && wire.userData.role !== "essential");
+  });
 
   for (const view of sceneState.loadViews) {
     const load = state.loads[view.index];
@@ -824,6 +848,12 @@ function syncFromSimulator() {
 }
 
 function animate(time) {
+  if (sceneState.pseudoActive) {
+    syncPseudo3d();
+    window.requestAnimationFrame(animate);
+    return;
+  }
+
   const state = getCurrentState();
   const delta = Math.min(0.05, (time - sceneState.lastTime) / 1000 || 0.016);
   sceneState.lastTime = time;
@@ -842,15 +872,22 @@ function animate(time) {
 
   const pulse = (Math.sin(time * 0.006) + 1) * 0.5;
   for (const wire of sceneState.dynamicWires) {
+    const essential = wire.userData.role === "essential";
+    const hiddenByClean = Boolean(state.cleanWireMode && !essential);
     const active = isWireActive(wire, state);
     const selected = wire === sceneState.selectedWire;
+    wire.visible = !hiddenByClean;
     wire.material.color.setHex(selected ? 0xfff06a : wire.userData.baseColor);
     wire.material.emissive.setHex(selected ? 0xfff06a : wire.userData.baseColor);
-    wire.material.opacity = selected ? 1 : active ? 1 : 0.46;
-    wire.material.emissiveIntensity = selected ? 0.85 + pulse * 0.55 : active ? 0.22 + pulse * 0.32 : 0;
+    wire.material.opacity = selected || essential ? 1 : active ? 1 : 0.46;
+    wire.material.emissiveIntensity = selected ? 0.85 + pulse * 0.55 : essential ? 0.35 : active ? 0.22 + pulse * 0.32 : 0;
   }
 
-  sceneState.renderer.render(sceneState.scene, sceneState.camera);
+  try {
+    sceneState.renderer.render(sceneState.scene, sceneState.camera);
+  } catch {
+    startPseudo3d("WebGL berhenti - pseudo 3D aktif.");
+  }
   window.requestAnimationFrame(animate);
 }
 
@@ -868,6 +905,101 @@ function showFallback(message) {
   }
 }
 
+function buildPseudo3d() {
+  if (!pseudo3dStage || pseudo3dStage.childElementCount > 0) return;
+
+  const core = document.createElement("div");
+  core.className = "pseudo3d-core";
+  core.innerHTML = "<span>ESP32-S3</span><span>CD4051</span><span>4 Relay Load</span>";
+  pseudo3dStage.appendChild(core);
+
+  const grid = document.createElement("div");
+  grid.className = "pseudo3d-grid";
+  pseudo3dStage.appendChild(grid);
+
+  sceneState.pseudoViews = loadLayout.map((load) => {
+    const card = document.createElement("article");
+    card.className = "pseudo3d-card";
+    card.dataset.loadIndex = String(load.index);
+
+    const label = document.createElement("div");
+    label.className = "pseudo3d-label";
+    label.textContent = load.label;
+
+    const ac = document.createElement("div");
+    ac.className = "pseudo3d-ac";
+    ac.textContent = "AC";
+
+    const relay = document.createElement("div");
+    relay.className = "pseudo3d-relay";
+    relay.textContent = "NO Relay";
+
+    const fan = document.createElement("div");
+    fan.className = "pseudo3d-fan";
+    fan.setAttribute("aria-hidden", "true");
+
+    const switchButton = document.createElement("button");
+    switchButton.className = "pseudo3d-switch";
+    switchButton.type = "button";
+    switchButton.addEventListener("click", () => {
+      window.acPowerSim?.toggleWallSwitch?.(load.index);
+      syncPseudo3d();
+    });
+
+    card.append(label, ac, relay, fan, switchButton);
+    grid.appendChild(card);
+    return { index: load.index, card, switchButton };
+  });
+}
+
+function syncPseudo3d() {
+  if (!sceneState.pseudoActive) return;
+  const state = getCurrentState();
+  pseudo3dStage?.classList.toggle("clean-active", Boolean(state.cleanWireMode));
+  sceneState.pseudoViews.forEach((view) => {
+    const load = state.loads[view.index];
+    if (!load) return;
+    view.card.classList.toggle("is-running", Boolean(state.running));
+    view.card.classList.toggle("is-active", Boolean(load.energized));
+    view.card.classList.toggle("relay-on", Boolean(load.relay));
+    view.card.classList.toggle("switch-on", Boolean(load.wallSwitch));
+    view.switchButton.textContent = load.wallSwitch ? "Switch ON" : "Switch OFF";
+    view.switchButton.title = `Toggle switch ${view.index + 1}`;
+  });
+}
+
+function startPseudo3d(message) {
+  if (!pseudo3dStage || !shell) {
+    showFallback("WebGL tidak tersedia. Gunakan mode 2D.");
+    return;
+  }
+
+  if (sceneState.pseudoActive) {
+    if (statusText) {
+      statusText.textContent = message;
+    }
+    syncPseudo3d();
+    return;
+  }
+
+  sceneState.pseudoActive = true;
+  shell.classList.add("pseudo3d-active");
+  pseudo3dStage.hidden = false;
+  if (fallback) {
+    fallback.hidden = true;
+  }
+  if (statusText) {
+    statusText.textContent = message;
+  }
+
+  buildPseudo3d();
+  syncPseudo3d();
+  window.addEventListener("ac-power-state-change", syncPseudo3d);
+  resetCameraButton?.addEventListener("click", () => {
+    pseudo3dStage.scrollTo({ left: 0, top: 0, behavior: "smooth" });
+  });
+}
+
 function init3d() {
   if (!canvas || !shell) return;
 
@@ -879,9 +1011,14 @@ function init3d() {
       alpha: false,
     });
   } catch {
-    showFallback("WebGL tidak tersedia. Gunakan mode 2D.");
+    startPseudo3d("WebGL tidak tersedia - pseudo 3D aktif.");
     return;
   }
+
+  canvas.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    startPseudo3d("WebGL berhenti - pseudo 3D aktif.");
+  });
 
   sceneState.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.55));
   sceneState.renderer.outputColorSpace = THREE.SRGBColorSpace;

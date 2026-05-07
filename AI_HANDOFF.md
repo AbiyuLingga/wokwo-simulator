@@ -6,7 +6,7 @@ Dokumen ini adalah pegangan untuk AI berikutnya yang melanjutkan proyek `ac-powe
 
 ## Tujuan Proyek
 
-Project ini mensimulasikan monitoring daya AC berbasis ESP32-S3 di Wokwi dan browser lokal. Sistem sekarang mengukur 4 beban relay secara bergantian, masing-masing selama 5 detik, dengan 1 sensor tegangan shared dan sensor arus per rangkaian, lalu menghitung:
+Project ini mensimulasikan monitoring daya AC berbasis ESP32-S3 di Wokwi dan browser lokal. Sistem sekarang mengukur 4 beban relay secara bergantian, masing-masing selama 3 detik, dengan 1 sensor tegangan shared dan sensor arus per rangkaian, lalu menghitung:
 
 - `Vrms`
 - `Irms`
@@ -25,7 +25,7 @@ Pada simulator resistif saat ini, V dan I dibuat sefase. PF boleh muncul sebagai
 
 ## Struktur File
 
-- `sketch.ino` - firmware ESP32-S3 untuk Wokwi, termasuk sampling 5 detik, relay, command serial, dan Supabase opsional.
+- `sketch.ino` - firmware ESP32-S3 untuk Wokwi, termasuk sampling 3 detik, relay, command serial, dan Supabase opsional.
 - `diagram.json` - layout Wokwi utama.
 - `cd4051b.chip.c/json` - model analog multiplexer CD4051B.
 - `zmpt101b.chip.c/json` - model sensor tegangan 0-5V dengan bias sekitar 2.5V.
@@ -125,8 +125,8 @@ SUPABASE_ANON_KEY
 Keputusan terbaru dari user:
 
 - Tidak memakai input PF.
-- Satu load diukur penuh selama 5 detik.
-- Setelah satu load selesai 5 detik, firmware pindah ke load berikutnya.
+- Satu load diukur penuh selama 3 detik.
+- Setelah satu load selesai 3 detik, firmware pindah ke load berikutnya.
 - Jangan mengeluarkan beberapa hasil load dalam waktu yang sama.
 - Total refresh penuh untuk 4 load sekitar 20 detik.
 - Jika relay OFF, grafik dan sampling load itu harus berhenti/clear.
@@ -134,16 +134,16 @@ Keputusan terbaru dari user:
 Alur firmware:
 
 ```text
-load 1 -> sampling 5 detik -> print hasil
-load 2 -> sampling 5 detik -> print hasil
+load 1 -> sampling 3 detik -> print hasil
+load 2 -> sampling 3 detik -> print hasil
 ulang
 ```
 
 Alur simulator web:
 
 ```text
-currentLoadIndex 0 -> activeWindow 5 detik -> render hasil
-currentLoadIndex 1 -> activeWindow 5 detik -> render hasil
+currentLoadIndex 0 -> activeWindow 3 detik -> render hasil
+currentLoadIndex 1 -> activeWindow 3 detik -> render hasil
 ulang
 ```
 
@@ -161,7 +161,7 @@ constexpr uint8_t RELAY_PINS[LOAD_COUNT] = {39, 38, 37, 35};
 constexpr uint8_t WALL_SWITCH_PINS[LOAD_COUNT] = {30, 31, 32, 33};
 constexpr uint8_t CURRENT_CHANNELS[LOAD_COUNT] = {0, 1, 2, 3};
 constexpr uint8_t SHARED_VOLTAGE_CHANNEL = 7;
-constexpr uint32_t SAMPLE_WINDOW_MS = 5000;
+constexpr uint32_t SAMPLE_WINDOW_MS = 3000;
 constexpr uint32_t SAMPLE_INTERVAL_US = 1000;
 ```
 
@@ -246,7 +246,7 @@ I_rms = V_rms / R
 Parameter waktu:
 
 ```js
-const sampleWindowMs = 5000;
+const sampleWindowMs = 3000;
 const acFrequencyHz = 50;
 const graphSampleIntervalMs = 2;
 const graphRenderIntervalMs = 50;
@@ -255,7 +255,7 @@ const waveformDisplayMs = 220;
 
 Fungsi penting:
 
-- `tick()` - mengatur window 5 detik per load, menyimpan hasil, lalu pindah ke load berikutnya.
+- `tick()` - mengatur window 3 detik per load, menyimpan hasil, lalu pindah ke load berikutnya.
 - `graphLoop()` - menggambar waveform real-time saat simulator berjalan.
 - `instantSample(index, elapsedMs)` - menghasilkan sample sinusoidal V(t), I(t), dan P(t). Jika relay OFF, output harus 0.
 - `clearLoadCharts(index)` - membersihkan waveform dan Pavg graph load terkait.
@@ -324,7 +324,7 @@ Jangan regresi di 3D:
 
 ## Grafik
 
-User meminta grafik yang membaca voltase dan arus real-time selama 5 detik, sehingga membentuk sinusoidal, bukan hanya titik-titik hasil akhir.
+User meminta grafik yang membaca voltase dan arus real-time selama window sampling aktif, sehingga membentuk sinusoidal, bukan hanya titik-titik hasil akhir. Window sampling terbaru adalah 3 detik per load.
 
 Status terbaru:
 
@@ -503,7 +503,7 @@ Untuk firmware, validasi terbaik tetap lewat Wokwi karena custom chip dan Arduin
 
 ## Prioritas Jika Melanjutkan
 
-1. Pertahankan `sketch.ino` sebagai sumber utama logika pengukuran 5 detik per load.
+1. Pertahankan `sketch.ino` sebagai sumber utama logika pengukuran 3 detik per load.
 2. Jika memperbaiki simulator web, samakan perilaku dengan firmware.
 3. Jika user bertanya soal relay, jawab dengan command spesifik `off1` sampai `off4` atau `on1` sampai `on4`.
 4. Jika user meminta grafik, cek langsung waveform V/I lane dan Pavg graph.

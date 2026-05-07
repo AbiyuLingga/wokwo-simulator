@@ -10,7 +10,7 @@ const loads = [
 ];
 
 const voltageRms = 220;
-const sampleWindowMs = 5000;
+const sampleWindowMs = 3000;
 let lastTick = Date.now();
 let currentLoadIndex = 0;
 

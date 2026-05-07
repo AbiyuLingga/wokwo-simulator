@@ -17,7 +17,7 @@ For detailed continuation notes for the next AI agent, see [`AI_HANDOFF.md`](AI_
 - CD4051B analog multiplexer model for per-load current channels and one shared voltage channel.
 - One ZMPT101B-style voltage sensor and per-load ACS712-style current sensor custom chips.
 - Real power calculation from `Pavg = average(V(t) * I(t))`.
-- 5-second sampling window per load, measured sequentially.
+- 3-second sampling window per load, measured sequentially.
 - Browser simulator with draggable wiring, relay controls, waveform charts, and Pavg graph.
 - 3D WebGL browser viewer with four load pods arranged 2x2, larger household fan/switch device groups, clickable 3D switches, under-board pin-to-pin cable lanes with smooth bends, and clickable wire highlighting.
 - Optional Supabase dashboard for live readings and relay control.
@@ -156,13 +156,13 @@ The web simulator is still project-specific. It does not reverse engineer or rep
 
 ## Pavg Measurement
 
-The firmware does not use power factor as an input. For each load, it samples the voltage and current channels for `SAMPLE_WINDOW_MS = 5000`, accumulates instantaneous power with `P = V(t) * I(t)`, then reports:
+The firmware does not use power factor as an input. For each load, it samples the voltage and current channels for `SAMPLE_WINDOW_MS = 3000`, accumulates instantaneous power with `P = V(t) * I(t)`, then reports:
 
 ```text
 Pavg = sum(P) / samples
 ```
 
-With four loads, the main loop measures load 1 through load 4 for about 5 seconds each. The full refresh cycle is therefore about 20 seconds.
+With four loads, the main loop measures load 1 through load 4 for about 3 seconds each. The full refresh cycle is therefore about 12 seconds.
 
 This method is the right basis for real power as long as voltage and current waveforms are sampled with correct calibration and minimal timing skew. In this no-PF simulator model, the generated current waveform is in phase with voltage and the load current is calculated from fan resistance with `I = V / R`; for real inductive/capacitive loads, the real sensors must provide the actual phase relationship and the firmware will still compute Pavg from `V(t) * I(t)`.
 
@@ -185,7 +185,7 @@ Editor behavior in the web simulator:
 - Double-click a wire to add a new route point on that wire.
 - Drag a selected wire to move its route points together while the endpoints stay connected.
 - Pin anchors are hidden during normal viewing and appear during wire editing or selection.
-- Each load card shows a live V(t)/I(t) waveform while that load is being measured, plus a Pavg graph that updates from `sum(V * I) / samples` during the 5-second measurement window.
+- Each load card shows a live V(t)/I(t) waveform while that load is being measured, plus a Pavg graph that updates from `sum(V * I) / samples` during the 3-second measurement window.
 
 ## Reference Pin Map
 

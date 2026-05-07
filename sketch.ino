@@ -26,7 +26,7 @@ static const int PIN_WALL_SWITCH[LOAD_COUNT] = {30, 31, 32, 33};
 
 static const uint8_t MUX_CURRENT_CHANNEL[LOAD_COUNT] = {0, 1, 2, 3};
 
-static const uint32_t SAMPLE_WINDOW_MS = 5000;
+static const uint32_t SAMPLE_WINDOW_MS = 3000;
 static const uint32_t SAMPLE_INTERVAL_US = 1000;
 
 // Wokwi Custom Chip Analog API currently maps 0..5V to ADC min..max.

@@ -16,7 +16,7 @@ let activeWindow = null;
 let animationFrame = null;
 let lastGraphRenderMs = 0;
 
-const sampleWindowMs = 5000;
+const sampleWindowMs = 3000;
 const acFrequencyHz = 50;
 const graphSampleIntervalMs = 2;
 const graphRenderIntervalMs = 50;
@@ -36,6 +36,7 @@ const zoomInButton = document.querySelector("#zoomInButton");
 const zoomOutButton = document.querySelector("#zoomOutButton");
 const wireButton = document.querySelector("#wireButton");
 const deleteWireButton = document.querySelector("#deleteWireButton");
+const cleanWireButton = document.querySelector("#cleanWireButton");
 const autoRouteButton = document.querySelector("#autoRouteButton");
 const scene3dShell = document.querySelector("#scene3dShell");
 const circuit = document.querySelector("#circuit");
@@ -49,6 +50,8 @@ const runtimeText = document.querySelector("#runtimeText");
 const voltageText = document.querySelector("#voltageText");
 const voltageRange = document.querySelector("#voltageRange");
 const wireReadout = document.querySelector("#wireReadout");
+let tutorialStepIndex = 0;
+let tutorialLayer = null;
 
 const wireColors = {
   red: "var(--wire-red)",
@@ -57,6 +60,33 @@ const wireColors = {
   purple: "var(--wire-purple)",
   orange: "var(--wire-orange)",
   green: "var(--wire-green)",
+};
+
+const pinDescriptions = {
+  "esp:3V3": "ESP 3V3 -> CD4051 VDD",
+  "esp:5V": "ESP 5V -> sensor/relay VCC",
+  "esp:GND": "ESP GND -> common ground",
+  "esp:10": "GPIO10 -> ZMPT101B OUT",
+  "esp:30": "GPIO30 -> Switch 1 signal",
+  "esp:31": "GPIO31 -> Switch 2 signal",
+  "esp:32": "GPIO32 -> Switch 3 signal",
+  "esp:33": "GPIO33 -> Switch 4 signal",
+  "esp:35": "GPIO35 -> Relay 4 IN",
+  "esp:36": "GPIO36 -> CD4051 COM ADC",
+  "esp:37": "GPIO37 -> Relay 3 IN",
+  "esp:38": "GPIO38 -> Relay 2 IN",
+  "esp:39": "GPIO39 -> Relay 1 IN",
+  "esp:40": "GPIO40 -> CD4051 select C",
+  "esp:41": "GPIO41 -> CD4051 select B",
+  "esp:42": "GPIO42 -> CD4051 select A",
+  "mux:VCC": "CD4051 VDD",
+  "mux:GND": "CD4051 VSS",
+  "mux:VEE": "CD4051 VEE",
+  "mux:INH": "CD4051 inhibit",
+  "mux:COM": "CD4051 COM -> ESP GPIO36",
+  "mux:A": "CD4051 select A -> ESP GPIO42",
+  "mux:B": "CD4051 select B -> ESP GPIO41",
+  "mux:C": "CD4051 select C -> ESP GPIO40",
 };
 
 const parts = {
@@ -324,6 +354,7 @@ let selectedWireIndex = null;
 let segmentDrag = null;
 let wireDrag = null;
 let stagePan = null;
+let cleanWireMode = false;
 let viewMode = "3d";
 const pinAnchorElements = new Map();
 const wires = [];
@@ -527,9 +558,120 @@ function ensureLoadCards() {
   });
 }
 
+const tutorialSteps = [
+  {
+    target: () => runButton,
+    title: "1. Tekan Play",
+    body: "Mulai simulasi dulu supaya rangkaian mulai dihitung.",
+  },
+  {
+    target: () => scene3dShell,
+    title: "2. Klik saklar",
+    body: "Di tampilan 3D, klik saklar di dekat kipas untuk mengaktifkan atau mematikan rangkaian.",
+  },
+  {
+    target: () => document.querySelector(".inspector"),
+    title: "3. Lihat data",
+    body: `Data daya rata-rata setiap rangkaian diperbarui tiap ${sampleWindowMs / 1000} detik.`,
+  },
+];
+
+function showStartupTutorial() {
+  if (tutorialLayer || window.matchMedia("(max-width: 760px)").matches) {
+    return;
+  }
+
+  tutorialStepIndex = 0;
+  tutorialLayer = document.createElement("div");
+  tutorialLayer.className = "tutorial-layer";
+  tutorialLayer.innerHTML = `
+    <div class="tutorial-scrim"></div>
+    <div class="tutorial-outline"></div>
+    <section class="tutorial-card" aria-live="polite">
+      <p class="tutorial-kicker">Panduan awal</p>
+      <h2></h2>
+      <p class="tutorial-body"></p>
+      <div class="tutorial-actions">
+        <button class="secondary-button" data-tutorial-skip type="button">Lewati</button>
+        <button class="primary-button" data-tutorial-next type="button">Lanjut</button>
+      </div>
+    </section>
+  `;
+  document.body.appendChild(tutorialLayer);
+  tutorialLayer.querySelector("[data-tutorial-skip]").addEventListener("click", closeStartupTutorial);
+  tutorialLayer.querySelector("[data-tutorial-next]").addEventListener("click", nextStartupTutorialStep);
+  window.addEventListener("resize", positionStartupTutorial);
+  renderStartupTutorialStep();
+}
+
+function closeStartupTutorial() {
+  if (!tutorialLayer) return;
+  tutorialLayer.remove();
+  tutorialLayer = null;
+  window.removeEventListener("resize", positionStartupTutorial);
+}
+
+function nextStartupTutorialStep() {
+  tutorialStepIndex += 1;
+  if (tutorialStepIndex >= tutorialSteps.length) {
+    closeStartupTutorial();
+    return;
+  }
+  renderStartupTutorialStep();
+}
+
+function renderStartupTutorialStep() {
+  if (!tutorialLayer) return;
+  const step = tutorialSteps[tutorialStepIndex];
+  tutorialLayer.querySelector("h2").textContent = step.title;
+  tutorialLayer.querySelector(".tutorial-body").textContent = step.body;
+  tutorialLayer.querySelector("[data-tutorial-next]").textContent =
+      tutorialStepIndex === tutorialSteps.length - 1 ? "Selesai" : "Lanjut";
+  positionStartupTutorial();
+}
+
+function positionStartupTutorial() {
+  if (!tutorialLayer) return;
+  const step = tutorialSteps[tutorialStepIndex];
+  const target = step.target();
+  if (!target) return;
+
+  const rect = target.getBoundingClientRect();
+  const outline = tutorialLayer.querySelector(".tutorial-outline");
+  const card = tutorialLayer.querySelector(".tutorial-card");
+  const pad = tutorialStepIndex === 1 ? 10 : 6;
+
+  outline.style.left = `${Math.max(8, rect.left - pad)}px`;
+  outline.style.top = `${Math.max(8, rect.top - pad)}px`;
+  outline.style.width = `${Math.min(window.innerWidth - 16, rect.width + pad * 2)}px`;
+  outline.style.height = `${Math.min(window.innerHeight - 16, rect.height + pad * 2)}px`;
+
+  const cardWidth = Math.min(340, window.innerWidth - 32);
+  let left = Math.min(window.innerWidth - cardWidth - 16, Math.max(16, rect.left));
+  let top = rect.bottom + 16;
+  if (top + 190 > window.innerHeight) {
+    top = Math.max(16, rect.top - 196);
+  }
+  if (tutorialStepIndex === 1) {
+    left = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, rect.left + 18));
+    top = Math.max(72, rect.top + 64);
+  }
+
+  card.style.left = `${left}px`;
+  card.style.top = `${top}px`;
+  card.style.width = `${cardWidth}px`;
+}
+
 function pinLabel(pinId) {
+  if (pinDescriptions[pinId]) {
+    return pinDescriptions[pinId];
+  }
   const [part, pin] = pinId.split(":");
   return `${part}.${pin}`;
+}
+
+function isCd4051VddWire(wire) {
+  return wire?.from === "esp:3V3" && wire?.to === "mux:VCC";
 }
 
 function getPinPoint(pinId) {
@@ -1370,12 +1512,15 @@ function renderWires() {
   wireLabels.textContent = "";
   wires.forEach((wire, index) => {
     if (wire.hidden) return;
+    const keepInCleanMode = isCd4051VddWire(wire);
+    if (cleanWireMode && !keepInCleanMode) return;
     const from = getPinPoint(wire.from);
     const to = getPinPoint(wire.to);
     if (!from || !to) return;
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const classes = ["wire", wire.color, ...wire.classes];
+    if (cleanWireMode && keepInCleanMode) classes.push("clean-kept");
     if (index === selectedWireIndex) classes.push("selected");
     if (isWireActive(wire)) classes.push("active");
     path.setAttribute("class", classes.join(" "));
@@ -1501,6 +1646,8 @@ function updateWireReadout() {
     const wire = wires[selectedWireIndex];
     const segmentCount = Math.max(1, routePointsForWire(wire).length - 1);
     wireReadout.textContent = `${pinLabel(wire.from)} → ${pinLabel(wire.to)}. ${segmentCount} straight segment${segmentCount === 1 ? "" : "s"}.`;
+  } else if (cleanWireMode) {
+    wireReadout.textContent = "Clean mode: hanya kabel ESP 3V3 -> CD4051 VDD ditampilkan.";
   } else {
     wireReadout.textContent = "No pin selected";
   }
@@ -1968,6 +2115,7 @@ function getSimulatorSnapshot() {
     runtimeMs,
     voltageRms,
     viewMode,
+    cleanWireMode,
   };
 }
 
@@ -2276,6 +2424,9 @@ window.acPowerSim = {
   get viewMode() {
     return viewMode;
   },
+  get cleanWireMode() {
+    return cleanWireMode;
+  },
   getState: getSimulatorSnapshot,
   isLoadEnergized,
   toggleWallSwitch(index) {
@@ -2315,6 +2466,17 @@ wireButton.addEventListener("click", () => {
   renderPinAnchors();
 });
 deleteWireButton.addEventListener("click", deleteSelectedWire);
+cleanWireButton.addEventListener("click", () => {
+  cleanWireMode = !cleanWireMode;
+  if (cleanWireMode && selectedWireIndex !== null && !isCd4051VddWire(wires[selectedWireIndex])) {
+    selectedWireIndex = null;
+  }
+  cleanWireButton.classList.toggle("active", cleanWireMode);
+  cleanWireButton.textContent = cleanWireMode ? "Clean On" : "Clean";
+  renderWires();
+  updateWireReadout();
+  notifySimulatorStateChanged();
+});
 autoRouteButton.addEventListener("click", () => {
   autoRouteAll({ resetLayout: true });
   fitCircuit();
@@ -2436,3 +2598,4 @@ setViewMode("3d");
 fitCircuit();
 renderMeasurementCharts();
 updateVisualState();
+window.setTimeout(showStartupTutorial, 550);
