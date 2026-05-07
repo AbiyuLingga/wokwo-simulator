@@ -227,6 +227,7 @@ let selectedPin = null;
 let selectedWireIndex = null;
 let segmentDrag = null;
 let wireDrag = null;
+let stagePan = null;
 const pinAnchorElements = new Map();
 const wires = [
   { from: "esp:3V3", to: "mux:VCC", color: "red", classes: ["power"], points: [{ x: 405, y: 522 }, { x: 405, y: 771 }, { x: 460, y: 771 }] },
@@ -1814,6 +1815,55 @@ function fitCircuit() {
   canvasStage.scrollTo({ left: 0, top: 0, behavior: "smooth" });
 }
 
+function startStagePan(event) {
+  if (event.button !== 2) return;
+  event.preventDefault();
+  event.stopPropagation();
+  stagePan = {
+    pointerId: event.pointerId ?? null,
+    startX: event.clientX,
+    startY: event.clientY,
+    scrollLeft: canvasStage.scrollLeft,
+    scrollTop: canvasStage.scrollTop,
+  };
+  canvasStage.classList.add("panning");
+  if (event.pointerId !== undefined && canvasStage.setPointerCapture) {
+    try {
+      canvasStage.setPointerCapture(event.pointerId);
+    } catch {
+      // Mouse fallback below still handles panning if pointer capture is unavailable.
+    }
+  }
+}
+
+function moveStagePan(event) {
+  if (!stagePan) return;
+  if (stagePan.pointerId !== null && event.pointerId !== undefined && event.pointerId !== stagePan.pointerId) return;
+  event.preventDefault();
+  canvasStage.scrollLeft = stagePan.scrollLeft - (event.clientX - stagePan.startX);
+  canvasStage.scrollTop = stagePan.scrollTop - (event.clientY - stagePan.startY);
+}
+
+function stopStagePan(event) {
+  if (!stagePan) return;
+  if (stagePan.pointerId !== null && event.pointerId !== undefined && event.pointerId !== stagePan.pointerId) return;
+  if (event.pointerId !== undefined && canvasStage.hasPointerCapture?.(event.pointerId)) {
+    canvasStage.releasePointerCapture(event.pointerId);
+  }
+  stagePan = null;
+  canvasStage.classList.remove("panning");
+}
+
+function isCanvasStageEvent(event) {
+  return event.target === canvasStage || canvasStage.contains(event.target);
+}
+
+function preventCanvasContextMenu(event) {
+  if (!isCanvasStageEvent(event)) return;
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 runButton.addEventListener("click", () => {
   if (running) stop();
   else start();
@@ -1841,6 +1891,18 @@ autoRouteButton.addEventListener("click", () => {
   appendSerial("Circuit auto-routed");
 });
 
+document.addEventListener("contextmenu", preventCanvasContextMenu, true);
+canvasStage.addEventListener("contextmenu", preventCanvasContextMenu);
+canvasStage.addEventListener("pointerdown", startStagePan);
+canvasStage.addEventListener("pointermove", moveStagePan);
+canvasStage.addEventListener("pointerup", stopStagePan);
+canvasStage.addEventListener("pointercancel", stopStagePan);
+canvasStage.addEventListener("mousedown", startStagePan);
+window.addEventListener("mousemove", (event) => {
+  if (!stagePan || !(event.buttons & 2)) return;
+  moveStagePan(event);
+});
+window.addEventListener("mouseup", stopStagePan);
 canvasStage.addEventListener("pointermove", updatePreviewWire);
 canvasStage.addEventListener("click", (event) => {
   if (event.target !== canvasStage && event.target !== circuit) return;
