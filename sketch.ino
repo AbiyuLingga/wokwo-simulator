@@ -8,20 +8,23 @@
 #endif
 
 // Reference image pin map:
-// GPIO36 = CD4051 COM ADC in the reference image, GPIO2/42/41 = CD4051 A/B/C
-// select, GPIO39/GPIO38 = relay controls for load 1 and load 2.
+// GPIO36 = CD4051 COM ADC for current channels, GPIO10 = direct ZMPT101B
+// voltage ADC, GPIO42/41/40 = CD4051 A/B/C select,
+// GPIO39/GPIO38/GPIO37/GPIO35 = relay controls for load 1..4, and
+// GPIO30/GPIO31/GPIO32/GPIO33 = low-voltage wall-switch inputs for load 1..4.
 // Note: on real ESP32-S3 silicon, ADC pins are GPIO1-GPIO20. If Wokwi or real
 // hardware returns zero on GPIO36, move CD4051 COM and PIN_ADC_MUX to a valid
 // ADC pin such as GPIO4 or GPIO5.
-static const uint8_t LOAD_COUNT = 2;
+static const uint8_t LOAD_COUNT = 4;
 static const int PIN_ADC_MUX = 36;
-static const int PIN_MUX_A = 2;
-static const int PIN_MUX_B = 42;
-static const int PIN_MUX_C = 41;
-static const int PIN_RELAY[LOAD_COUNT] = {39, 38};
+static const int PIN_ADC_ZMPT = 10;
+static const int PIN_MUX_A = 42;
+static const int PIN_MUX_B = 41;
+static const int PIN_MUX_C = 40;
+static const int PIN_RELAY[LOAD_COUNT] = {39, 38, 37, 35};
+static const int PIN_WALL_SWITCH[LOAD_COUNT] = {30, 31, 32, 33};
 
-static const uint8_t MUX_CURRENT_CHANNEL[LOAD_COUNT] = {0, 2};
-static const uint8_t MUX_VOLTAGE_CHANNEL[LOAD_COUNT] = {1, 3};
+static const uint8_t MUX_CURRENT_CHANNEL[LOAD_COUNT] = {0, 1, 2, 3};
 
 static const uint32_t SAMPLE_WINDOW_MS = 5000;
 static const uint32_t SAMPLE_INTERVAL_US = 1000;
@@ -55,9 +58,14 @@ struct Measurement {
   float apparentVa;
 };
 
-static bool relayEnabled[LOAD_COUNT] = {true, true};
+static bool relayEnabled[LOAD_COUNT] = {true, true, true, true};
+static bool wallSwitchClosed[LOAD_COUNT] = {false, false, false, false};
+static bool lastWallSwitchReading[LOAD_COUNT] = {false, false, false, false};
+static uint32_t lastWallSwitchChangeMs[LOAD_COUNT] = {0};
 static float energyWh[LOAD_COUNT] = {0};
 static uint32_t lastSupabaseRelayPollMs = 0;
+
+static void supabaseSetRelayState(uint8_t load, bool relayOn);
 
 static float adcToVolts(int raw) {
   return ((float)raw * ADC_REF_VOLTS) / ADC_MAX_COUNTS;
@@ -76,6 +84,48 @@ static void writeRelays() {
   }
 }
 
+static bool readWallSwitchClosed(uint8_t load) {
+  if (load >= LOAD_COUNT) {
+    return false;
+  }
+  return digitalRead(PIN_WALL_SWITCH[load]) == LOW;
+}
+
+static void applyManualSwitchOverride(uint8_t load) {
+  if (load >= LOAD_COUNT) {
+    return;
+  }
+
+  if (!relayEnabled[load]) {
+    relayEnabled[load] = true;
+    writeRelay(load);
+    supabaseSetRelayState(load, true);
+    Serial.print("Manual switch ");
+    Serial.print(load + 1);
+    Serial.println(" changed; relay released for manual ON");
+  } else {
+    Serial.print("Manual switch ");
+    Serial.print(load + 1);
+    Serial.println(wallSwitchClosed[load] ? " ON" : " OFF");
+  }
+}
+
+static void pollWallSwitches() {
+  const uint32_t now = millis();
+  for (uint8_t load = 0; load < LOAD_COUNT; load++) {
+    const bool reading = readWallSwitchClosed(load);
+    if (reading != lastWallSwitchReading[load]) {
+      lastWallSwitchReading[load] = reading;
+      lastWallSwitchChangeMs[load] = now;
+    }
+
+    if (reading != wallSwitchClosed[load] && (now - lastWallSwitchChangeMs[load]) >= 40) {
+      wallSwitchClosed[load] = reading;
+      applyManualSwitchOverride(load);
+    }
+  }
+}
+
 static void selectMuxChannel(uint8_t channel) {
   digitalWrite(PIN_MUX_A, (channel & 0x01) ? HIGH : LOW);
   digitalWrite(PIN_MUX_B, (channel & 0x02) ? HIGH : LOW);
@@ -88,11 +138,38 @@ static float readMuxVolts(uint8_t channel) {
   return adcToVolts(analogRead(PIN_ADC_MUX));
 }
 
+static float readZmptVolts() {
+  return adcToVolts(analogRead(PIN_ADC_ZMPT));
+}
+
 static void printHelp() {
   Serial.println();
-  Serial.println("Commands: on | off | toggle | reset | on1 | off1 | toggle1 | on2 | off2 | toggle2");
-  Serial.println("Output: LOAD Vrms Irms Pavg VA Wh kWh Relay");
+  Serial.println("Commands: on | off | toggle | reset | on1..on4 | off1..off4 | toggle1..toggle4");
+  Serial.println("Wall switches on GPIO30..GPIO33 are low-voltage inputs with INPUT_PULLUP.");
+  Serial.println("Output: LOAD Vrms Irms Pavg VA Wh kWh Relay Switch");
   Serial.println();
+}
+
+static bool parseLoadCommand(const String &command, const char *prefix, uint8_t *load) {
+  const size_t prefixLength = strlen(prefix);
+  if (!command.startsWith(prefix) || command.length() <= prefixLength) {
+    return false;
+  }
+
+  for (size_t i = prefixLength; i < command.length(); i++) {
+    const char c = command.charAt(i);
+    if (c < '0' || c > '9') {
+      return false;
+    }
+  }
+
+  const int loadNumber = command.substring(prefixLength).toInt();
+  if (loadNumber < 1 || loadNumber > LOAD_COUNT) {
+    return false;
+  }
+
+  *load = (uint8_t)(loadNumber - 1);
+  return true;
 }
 
 static bool supabaseConfigured() {
@@ -181,16 +258,21 @@ static void supabaseSeedCircuits() {
   }
 
   String body = "[";
-  body += "{\"relay_index\":1,\"name\":\"Rangkaian 1\",\"relay_on\":";
-  body += relayEnabled[0] ? "true" : "false";
-  body += ",\"tariff_idr_per_kwh\":";
-  body += String(DEFAULT_TARIFF_IDR_PER_KWH, 2);
-  body += ",\"command_nonce\":0},";
-  body += "{\"relay_index\":2,\"name\":\"Rangkaian 2\",\"relay_on\":";
-  body += relayEnabled[1] ? "true" : "false";
-  body += ",\"tariff_idr_per_kwh\":";
-  body += String(DEFAULT_TARIFF_IDR_PER_KWH, 2);
-  body += ",\"command_nonce\":0}]";
+  for (uint8_t load = 0; load < LOAD_COUNT; load++) {
+    if (load > 0) {
+      body += ",";
+    }
+    body += "{\"relay_index\":";
+    body += String(load + 1);
+    body += ",\"name\":\"Rangkaian ";
+    body += String(load + 1);
+    body += "\",\"relay_on\":";
+    body += relayEnabled[load] ? "true" : "false";
+    body += ",\"tariff_idr_per_kwh\":";
+    body += String(DEFAULT_TARIFF_IDR_PER_KWH, 2);
+    body += ",\"command_nonce\":0}";
+  }
+  body += "]";
 
   const int code = supabaseRequest(
     "/rest/v1/circuits?on_conflict=relay_index",
@@ -310,6 +392,31 @@ static void supabasePostMeasurement(const Measurement &m) {
     Serial.println(code);
   }
 }
+
+static void supabaseSetRelayState(uint8_t load, bool relayOn) {
+  if (!supabaseConfigured() || load >= LOAD_COUNT) {
+    return;
+  }
+
+  String body = "{";
+  body += "\"relay_on\":";
+  body += relayOn ? "true" : "false";
+  body += ",\"command_nonce\":";
+  body += String(millis());
+  body += "}";
+
+  const int code = supabaseRequest(
+    String("/rest/v1/circuits?relay_index=eq.") + String(load + 1),
+    "PATCH",
+    body,
+    nullptr,
+    "return=minimal"
+  );
+  if (code < 200 || code >= 300) {
+    Serial.print("Supabase manual relay PATCH HTTP ");
+    Serial.println(code);
+  }
+}
 #else
 static void supabaseSeedCircuits() {}
 static void supabasePollRelays(bool force = false) {
@@ -317,6 +424,10 @@ static void supabasePollRelays(bool force = false) {
 }
 static void supabasePostMeasurement(const Measurement &m) {
   (void)m;
+}
+static void supabaseSetRelayState(uint8_t load, bool relayOn) {
+  (void)load;
+  (void)relayOn;
 }
 #endif
 
@@ -335,6 +446,7 @@ static void processSerial() {
   String command = Serial.readStringUntil('\n');
   command.trim();
   command.toLowerCase();
+  uint8_t load = 0;
 
   if (command == "on") {
     setAllRelays(true);
@@ -348,22 +460,19 @@ static void processSerial() {
     }
     writeRelays();
     Serial.println("All relays toggled");
-  } else if (command == "on1" || command == "on2") {
-    const uint8_t load = command.endsWith("1") ? 0 : 1;
+  } else if (parseLoadCommand(command, "on", &load)) {
     relayEnabled[load] = true;
     writeRelay(load);
     Serial.print("Relay ");
     Serial.print(load + 1);
     Serial.println(" ON");
-  } else if (command == "off1" || command == "off2") {
-    const uint8_t load = command.endsWith("1") ? 0 : 1;
+  } else if (parseLoadCommand(command, "off", &load)) {
     relayEnabled[load] = false;
     writeRelay(load);
     Serial.print("Relay ");
     Serial.print(load + 1);
     Serial.println(" OFF");
-  } else if (command == "toggle1" || command == "toggle2") {
-    const uint8_t load = command.endsWith("1") ? 0 : 1;
+  } else if (parseLoadCommand(command, "toggle", &load)) {
     relayEnabled[load] = !relayEnabled[load];
     writeRelay(load);
     Serial.print("Relay ");
@@ -383,7 +492,6 @@ static Measurement sampleLoad(uint8_t load) {
   Measurement result = {};
   result.load = load;
 
-  const uint8_t voltageChannel = MUX_VOLTAGE_CHANNEL[load];
   const uint8_t currentChannel = MUX_CURRENT_CHANNEL[load];
   const uint32_t startMs = millis();
   uint32_t nextProcessMs = startMs + 250;
@@ -393,7 +501,7 @@ static Measurement sampleLoad(uint8_t load) {
   uint32_t samples = 0;
 
   while ((millis() - startMs) < SAMPLE_WINDOW_MS) {
-    const float voltageSensor = readMuxVolts(voltageChannel) - SENSOR_BIAS_VOLTS;
+    const float voltageSensor = readZmptVolts() - SENSOR_BIAS_VOLTS;
     float currentSensor = readMuxVolts(currentChannel) - SENSOR_BIAS_VOLTS;
 
     if (!relayEnabled[load]) {
@@ -410,6 +518,7 @@ static Measurement sampleLoad(uint8_t load) {
 
     if ((int32_t)(millis() - nextProcessMs) >= 0) {
       processSerial();
+      pollWallSwitches();
       nextProcessMs += 250;
     }
 
@@ -452,7 +561,9 @@ static void printMeasurement(const Measurement &m) {
   Serial.print("  Samples=");
   Serial.print(m.samples);
   Serial.print("  Relay=");
-  Serial.println(relayEnabled[m.load] ? "ON" : "OFF");
+  Serial.print(relayEnabled[m.load] ? "ON" : "OFF");
+  Serial.print("  Switch=");
+  Serial.println(wallSwitchClosed[m.load] ? "ON" : "OFF");
 }
 
 void setup() {
@@ -463,8 +574,12 @@ void setup() {
   pinMode(PIN_MUX_B, OUTPUT);
   pinMode(PIN_MUX_C, OUTPUT);
   pinMode(PIN_ADC_MUX, INPUT);
+  pinMode(PIN_ADC_ZMPT, INPUT);
   for (uint8_t i = 0; i < LOAD_COUNT; i++) {
     pinMode(PIN_RELAY[i], OUTPUT);
+    pinMode(PIN_WALL_SWITCH[i], INPUT_PULLUP);
+    wallSwitchClosed[i] = readWallSwitchClosed(i);
+    lastWallSwitchReading[i] = wallSwitchClosed[i];
   }
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -474,8 +589,11 @@ void setup() {
   writeRelays();
 
   Serial.println("AC Power Monitoring ESP32-S3 Reference Layout Simulation");
-  Serial.println("CD4051 COM ADC: GPIO36, select A=GPIO2 B=GPIO42 C=GPIO41");
-  Serial.println("Relays: LOAD1=GPIO39, LOAD2=GPIO38");
+  Serial.println("CD4051 COM ADC: GPIO36, select A=GPIO42 B=GPIO41 C=GPIO40");
+  Serial.println("CD4051 channels: C0-C3=current sensors");
+  Serial.println("ZMPT101B voltage sensor OUT: GPIO10");
+  Serial.println("Relays: LOAD1=GPIO39, LOAD2=GPIO38, LOAD3=GPIO37, LOAD4=GPIO35");
+  Serial.println("Wall switches: LOAD1=GPIO30, LOAD2=GPIO31, LOAD3=GPIO32, LOAD4=GPIO33");
   if (supabaseConfigured()) {
     Serial.println("Supabase sync enabled");
     supabaseSeedCircuits();
@@ -489,6 +607,7 @@ void setup() {
 void loop() {
   for (uint8_t load = 0; load < LOAD_COUNT; load++) {
     processSerial();
+    pollWallSwitches();
     Measurement measurement = sampleLoad(load);
     printMeasurement(measurement);
     supabasePostMeasurement(measurement);

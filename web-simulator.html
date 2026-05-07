@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Local AC Power Simulator</title>
-    <link rel="stylesheet" href="web-simulator.css?v=right-pan-2" />
+    <link rel="stylesheet" href="web-simulator.css?v=zmpt-gpio10-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -64,6 +64,10 @@
                 <div class="pin-col right"></div>
                 <div class="esp-pin-pads" aria-hidden="true">
                   <span class="esp-pad left" style="--pin-y: 102px">3V3</span>
+                  <span class="esp-pad left" style="--pin-y: 410px">10</span>
+                  <span class="esp-pad left" style="--pin-y: 432px">11</span>
+                  <span class="esp-pad left" style="--pin-y: 454px">30</span>
+                  <span class="esp-pad left" style="--pin-y: 476px">31</span>
                   <span class="esp-pad left" style="--pin-y: 500px">5V</span>
                   <span class="esp-pad left" style="--pin-y: 524px">GND</span>
                   <span class="esp-pad right" style="--pin-y: 88px">TX</span>
@@ -71,9 +75,12 @@
                   <span class="esp-pad right" style="--pin-y: 134px">2</span>
                   <span class="esp-pad right" style="--pin-y: 156px">42</span>
                   <span class="esp-pad right" style="--pin-y: 178px">41</span>
+                  <span class="esp-pad right" style="--pin-y: 200px">40</span>
                   <span class="esp-pad right" style="--pin-y: 302px">36</span>
                   <span class="esp-pad right" style="--pin-y: 334px">38</span>
                   <span class="esp-pad right" style="--pin-y: 356px">39</span>
+                  <span class="esp-pad right" style="--pin-y: 374px">32</span>
+                  <span class="esp-pad right" style="--pin-y: 396px">33</span>
                 </div>
                 <div class="usb-row">
                   <span></span>
@@ -84,7 +91,27 @@
 
               <section class="part mux" data-part="mux">
                 <div class="ic-pin left"></div>
+                <div class="ic-pin-labels left" aria-hidden="true">
+                  <span class="channel">CH 4</span>
+                  <span class="channel">CH 6</span>
+                  <span class="common">COM</span>
+                  <span class="channel">CH 7</span>
+                  <span class="channel">CH 5</span>
+                  <span class="enable">ENABLE</span>
+                  <span class="vee">VEE</span>
+                  <span class="vss">VSS</span>
+                </div>
                 <div class="ic-body">CD4051</div>
+                <div class="ic-pin-labels right" aria-hidden="true">
+                  <span class="vdd">VDD</span>
+                  <span class="channel">CH 2</span>
+                  <span class="channel">CH 1</span>
+                  <span class="channel">CH 0</span>
+                  <span class="channel">CH 3</span>
+                  <span class="select">CH A</span>
+                  <span class="select">CH B</span>
+                  <span class="select">CH C</span>
+                </div>
                 <div class="ic-pin right"></div>
               </section>
 
@@ -126,6 +153,12 @@
                 <div class="relay-led"></div>
               </section>
 
+              <section class="part wall-switch sw1" data-part="sw1">
+                <div class="switch-title">Switch 1</div>
+                <div class="switch-track"><span></span></div>
+                <div class="switch-pins">GPIO30 GND</div>
+              </section>
+
               <section class="part ac ac2" data-part="ac2">
                 <div class="ac-symbol">∿</div>
                 <div class="pin red-pin"></div>
@@ -150,18 +183,91 @@
                 <div class="sensor-pins">GND OUT VCC</div>
               </section>
 
-              <section class="part sensor zmpt zmpt2" data-part="zmpt2">
-                <div class="terminal"></div>
-                <div class="sensor-title">ZMPT101B</div>
-                <div class="sensor-sub">Voltage</div>
-                <div class="sensor-pins">GND OUT VCC</div>
-              </section>
-
               <section class="part relay relay2" data-part="relay2">
                 <div class="relay-inputs">VCC<br />GND<br />IN</div>
                 <div class="relay-body">Relay</div>
                 <div class="relay-throws">NO<br />COM<br />NC</div>
                 <div class="relay-led"></div>
+              </section>
+
+              <section class="part wall-switch sw2" data-part="sw2">
+                <div class="switch-title">Switch 2</div>
+                <div class="switch-track"><span></span></div>
+                <div class="switch-pins">GPIO31 GND</div>
+              </section>
+
+              <section class="part ac ac3" data-part="ac3">
+                <div class="ac-symbol">∿</div>
+                <div class="pin red-pin"></div>
+                <div class="pin blue-pin"></div>
+                <div class="part-label">AC 220V</div>
+              </section>
+
+              <section class="part fan fan3" data-part="fan3">
+                <div class="fan-ring">
+                  <div class="fan-blade blade-a"></div>
+                  <div class="fan-blade blade-b"></div>
+                  <div class="fan-blade blade-c"></div>
+                  <div class="fan-hub"></div>
+                </div>
+                <div class="part-label">Fan Load 3</div>
+              </section>
+
+              <section class="part sensor acs acs3" data-part="acs3">
+                <div class="terminal"></div>
+                <div class="sensor-title">ACS712</div>
+                <div class="sensor-sub">Current</div>
+                <div class="sensor-pins">GND OUT VCC</div>
+              </section>
+
+              <section class="part relay relay3" data-part="relay3">
+                <div class="relay-inputs">VCC<br />GND<br />IN</div>
+                <div class="relay-body">Relay</div>
+                <div class="relay-throws">NO<br />COM<br />NC</div>
+                <div class="relay-led"></div>
+              </section>
+
+              <section class="part wall-switch sw3" data-part="sw3">
+                <div class="switch-title">Switch 3</div>
+                <div class="switch-track"><span></span></div>
+                <div class="switch-pins">GPIO32 GND</div>
+              </section>
+
+              <section class="part ac ac4" data-part="ac4">
+                <div class="ac-symbol">∿</div>
+                <div class="pin red-pin"></div>
+                <div class="pin blue-pin"></div>
+                <div class="part-label">AC 220V</div>
+              </section>
+
+              <section class="part fan fan4" data-part="fan4">
+                <div class="fan-ring">
+                  <div class="fan-blade blade-a"></div>
+                  <div class="fan-blade blade-b"></div>
+                  <div class="fan-blade blade-c"></div>
+                  <div class="fan-hub"></div>
+                </div>
+                <div class="part-label">Fan Load 4</div>
+              </section>
+
+              <section class="part sensor acs acs4" data-part="acs4">
+                <div class="terminal"></div>
+                <div class="sensor-title">ACS712</div>
+                <div class="sensor-sub">Current</div>
+                <div class="sensor-pins">GND OUT VCC</div>
+              </section>
+
+              <section class="part relay relay4" data-part="relay4">
+                <div class="relay-inputs">VCC<br />GND<br />IN</div>
+                <div class="relay-body">Relay</div>
+                <div class="relay-throws">NO<br />COM<br />NC</div>
+                <div class="relay-led"></div>
+              </section>
+
+              <section class="part wall-switch sw4" data-part="sw4">
+                <div class="switch-title">Switch 4</div>
+                <div class="switch-track"><span></span></div>
+                <div class="switch-pins">GPIO33 GND</div>
               </section>
             </div>
           </div>
@@ -316,6 +422,6 @@
       </aside>
     </div>
 
-    <script src="web-simulator.js?v=right-pan-2"></script>
+    <script src="web-simulator.js?v=zmpt-gpio10-1"></script>
   </body>
 </html>

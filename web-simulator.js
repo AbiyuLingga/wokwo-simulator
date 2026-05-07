@@ -1,6 +1,8 @@
 const loads = [
-  { resistanceOhms: 183.3, relay: true, wh: 0 },
-  { resistanceOhms: 122.2, relay: true, wh: 0 },
+  { resistanceOhms: 183.3, relay: true, wallSwitch: false, wh: 0 },
+  { resistanceOhms: 122.2, relay: true, wallSwitch: false, wh: 0 },
+  { resistanceOhms: 91.7, relay: true, wallSwitch: false, wh: 0 },
+  { resistanceOhms: 73.3, relay: true, wallSwitch: false, wh: 0 },
 ];
 
 let voltageRms = 220;
@@ -62,27 +64,49 @@ const parts = {
   acs1: { x: 1080, y: 360 },
   zmpt1: { x: 1080, y: 690 },
   relay1: { x: 1480, y: 395 },
+  sw1: { x: 1878, y: 144 },
   ac2: { x: 1010, y: 1040 },
   fan2: { x: 1680, y: 1070 },
   acs2: { x: 1080, y: 1190 },
-  zmpt2: { x: 1080, y: 1515 },
   relay2: { x: 1480, y: 1240 },
+  sw2: { x: 1878, y: 1124 },
+  ac3: { x: 1010, y: 1730 },
+  fan3: { x: 1680, y: 1760 },
+  acs3: { x: 1080, y: 1880 },
+  relay3: { x: 1480, y: 1930 },
+  sw3: { x: 1878, y: 1814 },
+  ac4: { x: 1010, y: 2420 },
+  fan4: { x: 1680, y: 2450 },
+  acs4: { x: 1080, y: 2570 },
+  relay4: { x: 1480, y: 2620 },
+  sw4: { x: 1878, y: 2504 },
   rail: { x: 0, y: 0 },
 };
 
 const partSizes = {
   esp: { width: 230, height: 560 },
-  mux: { width: 95, height: 220 },
+  mux: { width: 118, height: 252 },
   ac1: { width: 110, height: 110 },
   fan1: { width: 170, height: 170 },
   acs1: { width: 150, height: 190 },
   zmpt1: { width: 150, height: 190 },
   relay1: { width: 152, height: 92 },
+  sw1: { width: 118, height: 62 },
   ac2: { width: 110, height: 110 },
   fan2: { width: 170, height: 170 },
   acs2: { width: 150, height: 190 },
-  zmpt2: { width: 150, height: 190 },
   relay2: { width: 152, height: 92 },
+  sw2: { width: 118, height: 62 },
+  ac3: { width: 110, height: 110 },
+  fan3: { width: 170, height: 170 },
+  acs3: { width: 150, height: 190 },
+  relay3: { width: 152, height: 92 },
+  sw3: { width: 118, height: 62 },
+  ac4: { width: 110, height: 110 },
+  fan4: { width: 170, height: 170 },
+  acs4: { width: 150, height: 190 },
+  relay4: { width: 152, height: 92 },
+  sw4: { width: 118, height: 62 },
 };
 
 const wireObstaclePadding = 28;
@@ -106,6 +130,8 @@ const pinMap = {
     9: { x: 6, y: 388, kind: "logic" },
     10: { x: 6, y: 410, kind: "logic" },
     11: { x: 6, y: 432, kind: "logic" },
+    30: { x: 6, y: 454, kind: "logic" },
+    31: { x: 6, y: 476, kind: "logic" },
     "5V": { x: 6, y: 500, kind: "power-red" },
     GND: { x: 6, y: 524, kind: "ground" },
     TX: { x: 224, y: 88, kind: "signal" },
@@ -120,26 +146,32 @@ const pinMap = {
     37: { x: 224, y: 286, kind: "logic" },
     36: { x: 224, y: 308, kind: "signal" },
     35: { x: 224, y: 330, kind: "logic" },
-    0: { x: 224, y: 352, kind: "logic" },
-    45: { x: 224, y: 374, kind: "logic" },
-    48: { x: 224, y: 396, kind: "logic" },
-    47: { x: 224, y: 418, kind: "logic" },
-    21: { x: 224, y: 440, kind: "logic" },
-    GND_R: { x: 224, y: 462, kind: "ground", label: "GND" },
+    32: { x: 224, y: 374, kind: "logic" },
+    33: { x: 224, y: 396, kind: "logic" },
+    0: { x: 224, y: 418, kind: "logic" },
+    45: { x: 224, y: 440, kind: "logic" },
+    48: { x: 224, y: 462, kind: "logic" },
+    47: { x: 224, y: 484, kind: "logic" },
+    21: { x: 224, y: 506, kind: "logic" },
+    GND_R: { x: 224, y: 528, kind: "ground", label: "GND" },
   },
   mux: {
-    COM: { x: 0, y: 64, kind: "signal" },
-    VCC: { x: 0, y: 196, kind: "power-red" },
-    GND: { x: 0, y: 172, kind: "ground" },
-    VEE: { x: 0, y: 148, kind: "ground" },
-    INH: { x: 0, y: 124, kind: "ground" },
-    C0: { x: 95, y: 24, kind: "signal" },
-    C1: { x: 95, y: 50, kind: "signal" },
-    C2: { x: 95, y: 76, kind: "signal" },
-    C3: { x: 95, y: 102, kind: "signal" },
-    A: { x: 95, y: 150, kind: "logic" },
-    B: { x: 95, y: 176, kind: "logic" },
-    C: { x: 95, y: 202, kind: "logic" },
+    C4: { x: 0, y: 18, kind: "signal", label: "CH 4" },
+    C6: { x: 0, y: 48, kind: "signal", label: "CH 6" },
+    COM: { x: 0, y: 78, kind: "control" },
+    C7: { x: 0, y: 108, kind: "signal", label: "CH 7" },
+    C5: { x: 0, y: 138, kind: "signal", label: "CH 5" },
+    INH: { x: 0, y: 168, kind: "logic", label: "ENABLE" },
+    VEE: { x: 0, y: 198, kind: "ground" },
+    GND: { x: 0, y: 228, kind: "ground", label: "VSS" },
+    VCC: { x: 118, y: 18, kind: "power-red", label: "VDD" },
+    C2: { x: 118, y: 48, kind: "signal", label: "CH 2" },
+    C1: { x: 118, y: 78, kind: "signal", label: "CH 1" },
+    C0: { x: 118, y: 108, kind: "signal", label: "CH 0" },
+    C3: { x: 118, y: 138, kind: "signal", label: "CH 3" },
+    A: { x: 118, y: 168, kind: "logic", label: "CH A" },
+    B: { x: 118, y: 198, kind: "logic", label: "CH B" },
+    C: { x: 118, y: 228, kind: "logic", label: "CH C" },
   },
   ac1: {
     L: { x: 0, y: 55, kind: "power-red" },
@@ -171,6 +203,10 @@ const pinMap = {
     COM: { x: 152, y: 46, kind: "power-red" },
     NC: { x: 152, y: 72, kind: "power-red" },
   },
+  sw1: {
+    SIG: { x: 0, y: 31, kind: "logic", label: "GPIO30" },
+    GND: { x: 118, y: 31, kind: "ground" },
+  },
   ac2: {
     L: { x: 0, y: 55, kind: "power-red" },
     N: { x: 110, y: 55, kind: "power-blue" },
@@ -186,13 +222,6 @@ const pinMap = {
     OUT: { x: 75, y: 190, kind: "signal" },
     VCC: { x: 112, y: 190, kind: "power-red" },
   },
-  zmpt2: {
-    AC_L: { x: 0, y: 44, kind: "power-red" },
-    AC_N: { x: 150, y: 44, kind: "power-blue" },
-    GND: { x: 40, y: 190, kind: "ground" },
-    OUT: { x: 75, y: 190, kind: "signal" },
-    VCC: { x: 112, y: 190, kind: "power-red" },
-  },
   relay2: {
     VCC: { x: 0, y: 18, kind: "power-red" },
     GND: { x: 0, y: 46, kind: "ground" },
@@ -201,23 +230,87 @@ const pinMap = {
     COM: { x: 152, y: 46, kind: "power-red" },
     NC: { x: 152, y: 72, kind: "power-red" },
   },
+  sw2: {
+    SIG: { x: 0, y: 31, kind: "logic", label: "GPIO31" },
+    GND: { x: 118, y: 31, kind: "ground" },
+  },
+  ac3: {
+    L: { x: 0, y: 55, kind: "power-red" },
+    N: { x: 110, y: 55, kind: "power-blue" },
+  },
+  fan3: {
+    L: { x: 60, y: 170, kind: "power-red" },
+    N: { x: 126, y: 170, kind: "power-blue" },
+  },
+  acs3: {
+    LINE_IN: { x: 0, y: 44, kind: "power-red" },
+    LINE_OUT: { x: 150, y: 44, kind: "power-red" },
+    GND: { x: 40, y: 190, kind: "ground" },
+    OUT: { x: 75, y: 190, kind: "signal" },
+    VCC: { x: 112, y: 190, kind: "power-red" },
+  },
+  relay3: {
+    VCC: { x: 0, y: 18, kind: "power-red" },
+    GND: { x: 0, y: 46, kind: "ground" },
+    IN: { x: 0, y: 72, kind: "control" },
+    NO: { x: 152, y: 18, kind: "power-red" },
+    COM: { x: 152, y: 46, kind: "power-red" },
+    NC: { x: 152, y: 72, kind: "power-red" },
+  },
+  sw3: {
+    SIG: { x: 0, y: 31, kind: "logic", label: "GPIO32" },
+    GND: { x: 118, y: 31, kind: "ground" },
+  },
+  ac4: {
+    L: { x: 0, y: 55, kind: "power-red" },
+    N: { x: 110, y: 55, kind: "power-blue" },
+  },
+  fan4: {
+    L: { x: 60, y: 170, kind: "power-red" },
+    N: { x: 126, y: 170, kind: "power-blue" },
+  },
+  acs4: {
+    LINE_IN: { x: 0, y: 44, kind: "power-red" },
+    LINE_OUT: { x: 150, y: 44, kind: "power-red" },
+    GND: { x: 40, y: 190, kind: "ground" },
+    OUT: { x: 75, y: 190, kind: "signal" },
+    VCC: { x: 112, y: 190, kind: "power-red" },
+  },
+  relay4: {
+    VCC: { x: 0, y: 18, kind: "power-red" },
+    GND: { x: 0, y: 46, kind: "ground" },
+    IN: { x: 0, y: 72, kind: "control" },
+    NO: { x: 152, y: 18, kind: "power-red" },
+    COM: { x: 152, y: 46, kind: "power-red" },
+    NC: { x: 152, y: 72, kind: "power-red" },
+  },
+  sw4: {
+    SIG: { x: 0, y: 31, kind: "logic", label: "GPIO33" },
+    GND: { x: 118, y: 31, kind: "ground" },
+  },
   rail: {
     V5_TOP: { x: 960, y: 250, kind: "power-red" },
-    V5_BOTTOM: { x: 960, y: 1780, kind: "power-red" },
+    V5_BOTTOM: { x: 960, y: 2860, kind: "power-red" },
     GND_TOP: { x: 1000, y: 250, kind: "ground" },
-    GND_BOTTOM: { x: 1000, y: 1780, kind: "ground" },
+    GND_BOTTOM: { x: 1000, y: 2860, kind: "ground" },
     V5_ACS1: { x: 960, y: 550, kind: "power-red" },
     V5_ZMPT1: { x: 960, y: 880, kind: "power-red" },
     V5_RELAY1: { x: 960, y: 413, kind: "power-red" },
     V5_ACS2: { x: 960, y: 1380, kind: "power-red" },
-    V5_ZMPT2: { x: 960, y: 1705, kind: "power-red" },
     V5_RELAY2: { x: 960, y: 1258, kind: "power-red" },
+    V5_ACS3: { x: 960, y: 2070, kind: "power-red" },
+    V5_RELAY3: { x: 960, y: 1948, kind: "power-red" },
+    V5_ACS4: { x: 960, y: 2760, kind: "power-red" },
+    V5_RELAY4: { x: 960, y: 2638, kind: "power-red" },
     GND_ACS1: { x: 1000, y: 550, kind: "ground" },
     GND_ZMPT1: { x: 1000, y: 880, kind: "ground" },
     GND_RELAY1: { x: 1000, y: 441, kind: "ground" },
     GND_ACS2: { x: 1000, y: 1380, kind: "ground" },
-    GND_ZMPT2: { x: 1000, y: 1705, kind: "ground" },
     GND_RELAY2: { x: 1000, y: 1286, kind: "ground" },
+    GND_ACS3: { x: 1000, y: 2070, kind: "ground" },
+    GND_RELAY3: { x: 1000, y: 1976, kind: "ground" },
+    GND_ACS4: { x: 1000, y: 2760, kind: "ground" },
+    GND_RELAY4: { x: 1000, y: 2666, kind: "ground" },
   },
 };
 
@@ -229,66 +322,97 @@ let segmentDrag = null;
 let wireDrag = null;
 let stagePan = null;
 const pinAnchorElements = new Map();
-const wires = [
-  { from: "esp:3V3", to: "mux:VCC", color: "red", classes: ["power"], points: [{ x: 405, y: 522 }, { x: 405, y: 771 }, { x: 460, y: 771 }] },
-  { from: "esp:GND", to: "mux:GND", color: "black", classes: ["power"], points: [{ x: 375, y: 965 }, { x: 375, y: 747 }, { x: 460, y: 747 }] },
-  { from: "esp:GND", to: "mux:VEE", color: "black", classes: ["power"], points: [{ x: 352, y: 965 }, { x: 352, y: 723 }, { x: 460, y: 723 }] },
-  { from: "esp:GND", to: "mux:INH", color: "black", classes: ["power"], points: [{ x: 329, y: 965 }, { x: 329, y: 699 }, { x: 460, y: 699 }] },
-  { from: "esp:36", to: "mux:COM", color: "purple", classes: ["signal"], points: [{ x: 380, y: 720 }, { x: 380, y: 639 }] },
-  { from: "esp:2", to: "mux:A", color: "orange", classes: ["logic"], points: [{ x: 390, y: 544 }, { x: 390, y: 725 }, { x: 555, y: 725 }] },
-  { from: "esp:42", to: "mux:B", color: "orange", classes: ["logic"], points: [{ x: 410, y: 570 }, { x: 410, y: 751 }, { x: 555, y: 751 }] },
-  { from: "esp:41", to: "mux:C", color: "orange", classes: ["logic"], points: [{ x: 430, y: 596 }, { x: 430, y: 777 }, { x: 555, y: 777 }] },
+const wires = [];
+wires.push(
+  { from: "esp:3V3", to: "mux:VCC", color: "red", classes: ["power"] },
+  { from: "esp:GND", to: "mux:GND", color: "black", classes: ["power"] },
+  { from: "esp:GND", to: "mux:VEE", color: "black", classes: ["power"] },
+  { from: "esp:GND", to: "mux:INH", color: "black", classes: ["power"] },
+  { from: "esp:36", to: "mux:COM", color: "purple", classes: ["signal"] },
+  { from: "esp:42", to: "mux:A", color: "orange", classes: ["logic"] },
+  { from: "esp:41", to: "mux:B", color: "orange", classes: ["logic"] },
+  { from: "esp:40", to: "mux:C", color: "orange", classes: ["logic"] },
 
-  { from: "mux:C0", to: "acs1:OUT", color: "purple", classes: ["signal"], points: [{ x: 650, y: 599 }, { x: 650, y: 235 }, { x: 955, y: 235 }, { x: 955, y: 490 }] },
-  { from: "mux:C1", to: "zmpt1:OUT", color: "purple", classes: ["signal"], points: [{ x: 675, y: 625 }, { x: 675, y: 545 }, { x: 955, y: 545 }, { x: 955, y: 800 }] },
-  { from: "mux:C2", to: "acs2:OUT", color: "purple", classes: ["signal"], points: [{ x: 700, y: 651 }, { x: 700, y: 960 }, { x: 955, y: 960 }, { x: 955, y: 1210 }] },
-  { from: "mux:C3", to: "zmpt2:OUT", color: "purple", classes: ["signal"], points: [{ x: 725, y: 677 }, { x: 725, y: 1270 }, { x: 955, y: 1270 }, { x: 955, y: 1510 }] },
+  { from: "mux:C0", to: "acs1:OUT", color: "purple", classes: ["signal"] },
+  { from: "mux:C1", to: "acs2:OUT", color: "purple", classes: ["signal"] },
+  { from: "mux:C2", to: "acs3:OUT", color: "purple", classes: ["signal"] },
+  { from: "mux:C3", to: "acs4:OUT", color: "purple", classes: ["signal"] },
+  { from: "esp:10", to: "zmpt1:OUT", color: "purple", classes: ["signal", "voltage"] },
 
-  { from: "esp:5V", to: "acs1:VCC", color: "red", classes: ["power"], points: [{ x: 305, y: 930 }, { x: 305, y: 260 }, { x: 1008, y: 260 }, { x: 1008, y: 490 }] },
-  { from: "esp:5V", to: "zmpt1:VCC", color: "red", classes: ["power"], points: [{ x: 286, y: 930 }, { x: 286, y: 575 }, { x: 1008, y: 575 }, { x: 1008, y: 800 }] },
-  { from: "esp:5V", to: "relay1:VCC", color: "red", classes: ["power"], points: [{ x: 267, y: 930 }, { x: 267, y: 220 }, { x: 1210, y: 220 }, { x: 1210, y: 368 }] },
-  { from: "esp:5V", to: "acs2:VCC", color: "red", classes: ["power"], points: [{ x: 248, y: 930 }, { x: 248, y: 990 }, { x: 1008, y: 990 }, { x: 1008, y: 1210 }] },
-  { from: "esp:5V", to: "zmpt2:VCC", color: "red", classes: ["power"], points: [{ x: 229, y: 930 }, { x: 229, y: 1288 }, { x: 1008, y: 1288 }, { x: 1008, y: 1510 }] },
-  { from: "esp:5V", to: "relay2:VCC", color: "red", classes: ["power"], points: [{ x: 210, y: 930 }, { x: 210, y: 1010 }, { x: 1210, y: 1010 }, { x: 1210, y: 1093 }] },
+  { from: "esp:5V", to: "zmpt1:VCC", color: "red", classes: ["power"] },
+  { from: "esp:GND", to: "zmpt1:GND", color: "black", classes: ["power"] },
 
-  { from: "esp:GND", to: "acs1:GND", color: "black", classes: ["power"], points: [{ x: 185, y: 965 }, { x: 185, y: 285 }, { x: 920, y: 285 }, { x: 920, y: 490 }] },
-  { from: "esp:GND", to: "zmpt1:GND", color: "black", classes: ["power"], points: [{ x: 166, y: 965 }, { x: 166, y: 590 }, { x: 920, y: 590 }, { x: 920, y: 800 }] },
-  { from: "esp:GND", to: "relay1:GND", color: "black", classes: ["power"], points: [{ x: 147, y: 965 }, { x: 147, y: 246 }, { x: 1190, y: 246 }, { x: 1190, y: 396 }] },
-  { from: "esp:GND", to: "acs2:GND", color: "black", classes: ["power"], points: [{ x: 128, y: 965 }, { x: 128, y: 1005 }, { x: 920, y: 1005 }, { x: 920, y: 1210 }] },
-  { from: "esp:GND", to: "zmpt2:GND", color: "black", classes: ["power"], points: [{ x: 109, y: 965 }, { x: 109, y: 1305 }, { x: 920, y: 1305 }, { x: 920, y: 1510 }] },
-  { from: "esp:GND", to: "relay2:GND", color: "black", classes: ["power"], points: [{ x: 90, y: 965 }, { x: 90, y: 1035 }, { x: 1190, y: 1035 }, { x: 1190, y: 1121 }] },
+  { from: "esp:5V", to: "acs1:VCC", color: "red", classes: ["power"] },
+  { from: "esp:5V", to: "relay1:VCC", color: "red", classes: ["power"] },
+  { from: "esp:GND", to: "acs1:GND", color: "black", classes: ["power"] },
+  { from: "esp:GND", to: "relay1:GND", color: "black", classes: ["power"] },
+  { from: "esp:39", to: "relay1:IN", color: "green", classes: ["control", "load1"] },
+  { from: "ac1:L", to: "relay1:NO", color: "red", classes: ["live", "load1"] },
+  { from: "relay1:COM", to: "acs1:LINE_IN", color: "red", classes: ["live", "load1"] },
+  { from: "acs1:LINE_OUT", to: "fan1:L", color: "red", classes: ["live", "load1"] },
+  { from: "ac1:N", to: "fan1:N", color: "blue", classes: ["load1"] },
+  { from: "esp:30", to: "sw1:SIG", color: "orange", classes: ["logic", "switch", "load1"] },
+  { from: "esp:GND", to: "sw1:GND", color: "black", classes: ["power", "switch", "load1"] },
 
-  { from: "esp:39", to: "relay1:IN", color: "green", classes: ["control", "load1"], points: [{ x: 610, y: 780 }, { x: 610, y: 425 }, { x: 1230, y: 425 }] },
-  { from: "esp:38", to: "relay2:IN", color: "green", classes: ["control", "load2"], points: [{ x: 585, y: 756 }, { x: 585, y: 1147 }, { x: 1230, y: 1147 }] },
+  { from: "esp:5V", to: "acs2:VCC", color: "red", classes: ["power"] },
+  { from: "esp:5V", to: "relay2:VCC", color: "red", classes: ["power"] },
+  { from: "esp:GND", to: "acs2:GND", color: "black", classes: ["power"] },
+  { from: "esp:GND", to: "relay2:GND", color: "black", classes: ["power"] },
+  { from: "esp:38", to: "relay2:IN", color: "green", classes: ["control", "load2"] },
+  { from: "ac2:L", to: "relay2:NO", color: "red", classes: ["live", "load2"] },
+  { from: "relay2:COM", to: "acs2:LINE_IN", color: "red", classes: ["live", "load2"] },
+  { from: "acs2:LINE_OUT", to: "fan2:L", color: "red", classes: ["live", "load2"] },
+  { from: "ac2:N", to: "fan2:N", color: "blue", classes: ["load2"] },
+  { from: "esp:31", to: "sw2:SIG", color: "orange", classes: ["logic", "switch", "load2"] },
+  { from: "esp:GND", to: "sw2:GND", color: "black", classes: ["power", "switch", "load2"] },
 
-  { from: "ac1:L", to: "relay1:NO", color: "red", classes: ["live", "load1"], points: [{ x: 835, y: 95 }, { x: 835, y: 198 }, { x: 1420, y: 198 }, { x: 1420, y: 368 }] },
-  { from: "relay1:COM", to: "acs1:LINE_IN", color: "red", classes: ["live", "load1"], points: [{ x: 1428, y: 396 }, { x: 1428, y: 268 }, { x: 840, y: 268 }, { x: 840, y: 344 }] },
-  { from: "acs1:LINE_OUT", to: "fan1:L", color: "red", classes: ["live", "load1"], points: [{ x: 1080, y: 344 }, { x: 1160, y: 344 }, { x: 1160, y: 225 }, { x: 1360, y: 225 }] },
-  { from: "ac1:N", to: "fan1:N", color: "blue", classes: ["load1"], points: [{ x: 1025, y: 95 }, { x: 1250, y: 95 }, { x: 1250, y: 225 }, { x: 1426, y: 225 }] },
-  { from: "ac1:L", to: "zmpt1:AC_L", color: "red", classes: ["live", "load1"], points: [{ x: 815, y: 95 }, { x: 815, y: 654 }] },
-  { from: "ac1:N", to: "zmpt1:AC_N", color: "blue", classes: ["load1"], points: [{ x: 1045, y: 95 }, { x: 1090, y: 95 }, { x: 1090, y: 654 }, { x: 1030, y: 654 }] },
+  { from: "esp:5V", to: "acs3:VCC", color: "red", classes: ["power"] },
+  { from: "esp:5V", to: "relay3:VCC", color: "red", classes: ["power"] },
+  { from: "esp:GND", to: "acs3:GND", color: "black", classes: ["power"] },
+  { from: "esp:GND", to: "relay3:GND", color: "black", classes: ["power"] },
+  { from: "esp:37", to: "relay3:IN", color: "green", classes: ["control", "load3"] },
+  { from: "ac3:L", to: "relay3:NO", color: "red", classes: ["live", "load3"] },
+  { from: "relay3:COM", to: "acs3:LINE_IN", color: "red", classes: ["live", "load3"] },
+  { from: "acs3:LINE_OUT", to: "fan3:L", color: "red", classes: ["live", "load3"] },
+  { from: "ac3:N", to: "fan3:N", color: "blue", classes: ["load3"] },
+  { from: "esp:32", to: "sw3:SIG", color: "orange", classes: ["logic", "switch", "load3"] },
+  { from: "esp:GND", to: "sw3:GND", color: "black", classes: ["power", "switch", "load3"] },
 
-  { from: "ac2:L", to: "relay2:NO", color: "red", classes: ["live", "load2"], points: [{ x: 835, y: 890 }, { x: 835, y: 1010 }, { x: 1420, y: 1010 }, { x: 1420, y: 1093 }] },
-  { from: "relay2:COM", to: "acs2:LINE_IN", color: "red", classes: ["live", "load2"], points: [{ x: 1428, y: 1121 }, { x: 1428, y: 988 }, { x: 840, y: 988 }, { x: 840, y: 1064 }] },
-  { from: "acs2:LINE_OUT", to: "fan2:L", color: "red", classes: ["live", "load2"], points: [{ x: 1080, y: 1064 }, { x: 1160, y: 1064 }, { x: 1160, y: 1020 }, { x: 1360, y: 1020 }] },
-  { from: "ac2:N", to: "fan2:N", color: "blue", classes: ["load2"], points: [{ x: 1025, y: 890 }, { x: 1250, y: 890 }, { x: 1250, y: 1020 }, { x: 1426, y: 1020 }] },
-  { from: "ac2:L", to: "zmpt2:AC_L", color: "red", classes: ["live", "load2"], points: [{ x: 815, y: 890 }, { x: 815, y: 1364 }] },
-  { from: "ac2:N", to: "zmpt2:AC_N", color: "blue", classes: ["load2"], points: [{ x: 1045, y: 890 }, { x: 1090, y: 890 }, { x: 1090, y: 1364 }, { x: 1030, y: 1364 }] },
-];
+  { from: "esp:5V", to: "acs4:VCC", color: "red", classes: ["power"] },
+  { from: "esp:5V", to: "relay4:VCC", color: "red", classes: ["power"] },
+  { from: "esp:GND", to: "acs4:GND", color: "black", classes: ["power"] },
+  { from: "esp:GND", to: "relay4:GND", color: "black", classes: ["power"] },
+  { from: "esp:35", to: "relay4:IN", color: "green", classes: ["control", "load4"] },
+  { from: "ac4:L", to: "relay4:NO", color: "red", classes: ["live", "load4"] },
+  { from: "relay4:COM", to: "acs4:LINE_IN", color: "red", classes: ["live", "load4"] },
+  { from: "acs4:LINE_OUT", to: "fan4:L", color: "red", classes: ["live", "load4"] },
+  { from: "ac4:N", to: "fan4:N", color: "blue", classes: ["load4"] },
+  { from: "esp:33", to: "sw4:SIG", color: "orange", classes: ["logic", "switch", "load4"] },
+  { from: "esp:GND", to: "sw4:GND", color: "black", classes: ["power", "switch", "load4"] },
+
+  { from: "ac1:L", to: "zmpt1:AC_L", color: "red", classes: ["live", "voltage"] },
+  { from: "ac1:N", to: "zmpt1:AC_N", color: "blue", classes: ["voltage"] }
+);
 
 const hiddenDirectSupplyWires = new Set([
   "esp:5V->acs1:VCC",
   "esp:5V->zmpt1:VCC",
   "esp:5V->relay1:VCC",
   "esp:5V->acs2:VCC",
-  "esp:5V->zmpt2:VCC",
   "esp:5V->relay2:VCC",
+  "esp:5V->acs3:VCC",
+  "esp:5V->relay3:VCC",
+  "esp:5V->acs4:VCC",
+  "esp:5V->relay4:VCC",
   "esp:GND->acs1:GND",
   "esp:GND->zmpt1:GND",
   "esp:GND->relay1:GND",
   "esp:GND->acs2:GND",
-  "esp:GND->zmpt2:GND",
   "esp:GND->relay2:GND",
+  "esp:GND->acs3:GND",
+  "esp:GND->relay3:GND",
+  "esp:GND->acs4:GND",
+  "esp:GND->relay4:GND",
 ]);
 
 wires.forEach((wire) => {
@@ -304,14 +428,20 @@ wires.push(
   { from: "rail:V5_ZMPT1", to: "zmpt1:VCC", color: "red", classes: ["power", "branch"] },
   { from: "rail:V5_RELAY1", to: "relay1:VCC", color: "red", classes: ["power", "branch"] },
   { from: "rail:V5_ACS2", to: "acs2:VCC", color: "red", classes: ["power", "branch"] },
-  { from: "rail:V5_ZMPT2", to: "zmpt2:VCC", color: "red", classes: ["power", "branch"] },
   { from: "rail:V5_RELAY2", to: "relay2:VCC", color: "red", classes: ["power", "branch"] },
+  { from: "rail:V5_ACS3", to: "acs3:VCC", color: "red", classes: ["power", "branch"] },
+  { from: "rail:V5_RELAY3", to: "relay3:VCC", color: "red", classes: ["power", "branch"] },
+  { from: "rail:V5_ACS4", to: "acs4:VCC", color: "red", classes: ["power", "branch"] },
+  { from: "rail:V5_RELAY4", to: "relay4:VCC", color: "red", classes: ["power", "branch"] },
   { from: "rail:GND_ACS1", to: "acs1:GND", color: "black", classes: ["power", "branch"] },
   { from: "rail:GND_ZMPT1", to: "zmpt1:GND", color: "black", classes: ["power", "branch"] },
   { from: "rail:GND_RELAY1", to: "relay1:GND", color: "black", classes: ["power", "branch"] },
   { from: "rail:GND_ACS2", to: "acs2:GND", color: "black", classes: ["power", "branch"] },
-  { from: "rail:GND_ZMPT2", to: "zmpt2:GND", color: "black", classes: ["power", "branch"] },
-  { from: "rail:GND_RELAY2", to: "relay2:GND", color: "black", classes: ["power", "branch"] }
+  { from: "rail:GND_RELAY2", to: "relay2:GND", color: "black", classes: ["power", "branch"] },
+  { from: "rail:GND_ACS3", to: "acs3:GND", color: "black", classes: ["power", "branch"] },
+  { from: "rail:GND_RELAY3", to: "relay3:GND", color: "black", classes: ["power", "branch"] },
+  { from: "rail:GND_ACS4", to: "acs4:GND", color: "black", classes: ["power", "branch"] },
+  { from: "rail:GND_RELAY4", to: "relay4:GND", color: "black", classes: ["power", "branch"] }
 );
 
 function appendSerial(line = "") {
@@ -324,6 +454,73 @@ function formatTime(ms) {
   const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
   const seconds = (totalSeconds % 60).toString().padStart(2, "0");
   return `${minutes}:${seconds}`;
+}
+
+function loadCardTemplate(index) {
+  const loadNumber = index + 1;
+  return `
+    <div class="load-head">
+      <strong>Load ${loadNumber}</strong>
+      <button class="small-button" data-command="toggle${loadNumber}" type="button">Toggle</button>
+    </div>
+    <button class="switch-button" data-command="sw${loadNumber}" type="button">
+      Wall Switch ${loadNumber}
+    </button>
+    <label class="range-field">
+      <span>Fan resistor</span>
+      <input data-resistance="${index}" type="range" min="40" max="500" step="0.1" value="${loads[index].resistanceOhms}" />
+    </label>
+    <div class="load-stats" id="loadStats${index}"></div>
+    <div class="read-chart">
+      <div class="chart-head">
+        <span>Waveform</span>
+        <span id="chartReadout${index}">No live window</span>
+      </div>
+      <svg class="measurement-chart waveform-chart" data-waveform-chart="${index}" viewBox="0 0 240 116" role="img" aria-label="Load ${loadNumber} voltage and current waveform">
+        <line class="chart-grid" x1="10" y1="30" x2="230" y2="30"></line>
+        <line class="chart-divider" x1="10" y1="58" x2="230" y2="58"></line>
+        <line class="chart-grid" x1="10" y1="88" x2="230" y2="88"></line>
+        <text class="chart-axis-label voltage" x="12" y="16">V</text>
+        <text class="chart-axis-label current" x="12" y="74">I</text>
+        <polyline class="chart-line voltage" data-chart-line="voltage" points=""></polyline>
+        <polyline class="chart-line current" data-chart-line="current" points=""></polyline>
+      </svg>
+      <div class="chart-legend">
+        <span class="legend-voltage">V(t)</span>
+        <span class="legend-current">I(t)</span>
+      </div>
+    </div>
+    <div class="read-chart">
+      <div class="chart-head">
+        <span>Pavg</span>
+        <span id="pavgReadout${index}">0.00W</span>
+      </div>
+      <svg class="measurement-chart pavg-chart" data-pavg-chart="${index}" viewBox="0 0 240 76" role="img" aria-label="Load ${loadNumber} average power graph">
+        <line class="chart-grid" x1="10" y1="18" x2="230" y2="18"></line>
+        <line class="chart-grid" x1="10" y1="38" x2="230" y2="38"></line>
+        <line class="chart-grid" x1="10" y1="58" x2="230" y2="58"></line>
+        <polyline class="chart-line pavg" data-pavg-line points=""></polyline>
+      </svg>
+      <div class="chart-legend">
+        <span class="legend-pavg">Pavg</span>
+      </div>
+    </div>
+  `;
+}
+
+function ensureLoadCards() {
+  const loadPanel = document.querySelector("[data-load-card]")?.parentElement;
+  if (!loadPanel) return;
+  loads.forEach((_, index) => {
+    let card = document.querySelector(`[data-load-card="${index}"]`);
+    if (!card) {
+      card = document.createElement("div");
+      card.className = "load-card";
+      card.dataset.loadCard = String(index);
+      loadPanel.appendChild(card);
+    }
+    card.innerHTML = loadCardTemplate(index);
+  });
 }
 
 function pinLabel(pinId) {
@@ -602,6 +799,21 @@ function routeWireAroundComponents(wire, rawPoints = [], horizontalFirst = true)
   const fullRoute = buildOrthogonalFullRoute(from, anchors, to, horizontalFirst);
   const avoidedRoute = avoidWireObstacles(wire, fullRoute);
   return simplifyFullRoute(avoidedRoute).slice(1, -1);
+}
+
+function referenceRouteForWire(wire, rawPoints = [], horizontalFirst = true) {
+  const from = getPinPoint(wire.from);
+  const to = getPinPoint(wire.to);
+  if (!from || !to) return [];
+
+  const anchors = [];
+  const fromStub = pinStubPoint(wire.from);
+  const toStub = pinStubPoint(wire.to);
+  if (fromStub && !samePoint(from, fromStub)) anchors.push(fromStub);
+  rawPoints.forEach((point) => anchors.push(point));
+  if (toStub && !samePoint(to, toStub)) anchors.push(toStub);
+
+  return simplifyFullRoute(buildOrthogonalFullRoute(from, anchors, to, horizontalFirst)).slice(1, -1);
 }
 
 function defaultRoutePointsForWire(wire) {
@@ -908,11 +1120,22 @@ function resetPartLayout() {
     acs1: { x: 1080, y: 360 },
     zmpt1: { x: 1080, y: 690 },
     relay1: { x: 1480, y: 395 },
+    sw1: { x: 1878, y: 144 },
     ac2: { x: 1010, y: 1040 },
     fan2: { x: 1680, y: 1070 },
     acs2: { x: 1080, y: 1190 },
-    zmpt2: { x: 1080, y: 1515 },
     relay2: { x: 1480, y: 1240 },
+    sw2: { x: 1878, y: 1124 },
+    ac3: { x: 1010, y: 1730 },
+    fan3: { x: 1680, y: 1760 },
+    acs3: { x: 1080, y: 1880 },
+    relay3: { x: 1480, y: 1930 },
+    sw3: { x: 1878, y: 1814 },
+    ac4: { x: 1010, y: 2420 },
+    fan4: { x: 1680, y: 2450 },
+    acs4: { x: 1080, y: 2570 },
+    relay4: { x: 1480, y: 2620 },
+    sw4: { x: 1878, y: 2504 },
     rail: { x: 0, y: 0 },
   });
 }
@@ -924,63 +1147,104 @@ function routeForWire(wire, index) {
 
   const key = `${wire.from}->${wire.to}`;
   if (key === "esp:5V->rail:V5_TOP") {
-    return routeWireAroundComponents(wire, routeVia(from, to, [{ x: 34, y: from.y }, { x: 34, y: 210 }, { x: to.x, y: 210 }]), true);
+    return referenceRouteForWire(wire, routeVia(from, to, [{ x: 34, y: from.y }, { x: 34, y: 210 }, { x: to.x, y: 210 }]), true);
   }
   if (key === "esp:GND->rail:GND_TOP") {
-    return routeWireAroundComponents(wire, routeVia(from, to, [{ x: 58, y: from.y }, { x: 58, y: 235 }, { x: to.x, y: 235 }]), true);
+    return referenceRouteForWire(wire, routeVia(from, to, [{ x: 58, y: from.y }, { x: 58, y: 235 }, { x: to.x, y: 235 }]), true);
+  }
+  const railRoutes = {
+    "rail:V5_RELAY1->relay1:VCC": [{ x: 960, y: 330 }, { x: 1440, y: 330 }, { x: 1440, y: to.y }],
+    "rail:GND_RELAY1->relay1:GND": [{ x: 1000, y: 345 }, { x: 1432, y: 345 }, { x: 1432, y: to.y }],
+    "rail:V5_RELAY2->relay2:VCC": [{ x: 960, y: 1168 }, { x: 1440, y: 1168 }, { x: 1440, y: to.y }],
+    "rail:GND_RELAY2->relay2:GND": [{ x: 1000, y: 1183 }, { x: 1432, y: 1183 }, { x: 1432, y: to.y }],
+    "rail:V5_RELAY3->relay3:VCC": [{ x: 960, y: 1858 }, { x: 1440, y: 1858 }, { x: 1440, y: to.y }],
+    "rail:GND_RELAY3->relay3:GND": [{ x: 1000, y: 1873 }, { x: 1432, y: 1873 }, { x: 1432, y: to.y }],
+    "rail:V5_RELAY4->relay4:VCC": [{ x: 960, y: 2548 }, { x: 1440, y: 2548 }, { x: 1440, y: to.y }],
+    "rail:GND_RELAY4->relay4:GND": [{ x: 1000, y: 2563 }, { x: 1432, y: 2563 }, { x: 1432, y: to.y }],
+  };
+  if (railRoutes[key]) {
+    return referenceRouteForWire(wire, routeVia(from, to, railRoutes[key]), true);
   }
   if (wire.from.startsWith("rail:") || wire.to.startsWith("rail:")) {
-    return routeWireAroundComponents(wire, [], true);
+    return referenceRouteForWire(wire, [], true);
+  }
+  const switchRoutes = {
+    "esp:30->sw1:SIG": [{ x: 335, y: from.y }, { x: 335, y: 38 }, { x: 1840, y: 38 }, { x: 1840, y: to.y }],
+    "esp:GND->sw1:GND": [{ x: 92, y: from.y }, { x: 92, y: 74 }, { x: 2032, y: 74 }, { x: 2032, y: to.y }],
+    "esp:31->sw2:SIG": [{ x: 320, y: from.y }, { x: 320, y: 1018 }, { x: 1840, y: 1018 }, { x: 1840, y: to.y }],
+    "esp:GND->sw2:GND": [{ x: 114, y: from.y }, { x: 114, y: 1054 }, { x: 2032, y: 1054 }, { x: 2032, y: to.y }],
+    "esp:32->sw3:SIG": [{ x: 560, y: from.y }, { x: 560, y: 1708 }, { x: 1840, y: 1708 }, { x: 1840, y: to.y }],
+    "esp:GND->sw3:GND": [{ x: 136, y: from.y }, { x: 136, y: 1744 }, { x: 2032, y: 1744 }, { x: 2032, y: to.y }],
+    "esp:33->sw4:SIG": [{ x: 590, y: from.y }, { x: 590, y: 2398 }, { x: 1840, y: 2398 }, { x: 1840, y: to.y }],
+    "esp:GND->sw4:GND": [{ x: 158, y: from.y }, { x: 158, y: 2434 }, { x: 2032, y: 2434 }, { x: 2032, y: to.y }],
+  };
+  if (switchRoutes[key]) {
+    return referenceRouteForWire(wire, routeVia(from, to, switchRoutes[key]), true);
   }
   const espMuxRoutes = {
-    "esp:3V3->mux:VCC": [{ x: 34, y: from.y }, { x: 34, y: 470 }, { x: 455, y: 470 }, { x: 455, y: to.y }],
-    "esp:GND->mux:GND": [{ x: 58, y: from.y }, { x: 58, y: 1115 }, { x: 410, y: 1115 }, { x: 410, y: to.y }],
-    "esp:GND->mux:VEE": [{ x: 58, y: from.y }, { x: 58, y: 1145 }, { x: 385, y: 1145 }, { x: 385, y: to.y }],
-    "esp:GND->mux:INH": [{ x: 58, y: from.y }, { x: 58, y: 1175 }, { x: 360, y: 1175 }, { x: 360, y: to.y }],
+    "esp:3V3->mux:VCC": [{ x: 16, y: from.y }, { x: 16, y: 455 }, { x: 455, y: 455 }, { x: 455, y: to.y }],
+    "esp:GND->mux:GND": [{ x: 82, y: from.y }, { x: 82, y: 1115 }, { x: 410, y: 1115 }, { x: 410, y: to.y }],
+    "esp:GND->mux:VEE": [{ x: 104, y: from.y }, { x: 104, y: 1145 }, { x: 385, y: 1145 }, { x: 385, y: to.y }],
+    "esp:GND->mux:INH": [{ x: 126, y: from.y }, { x: 126, y: 1175 }, { x: 360, y: 1175 }, { x: 360, y: to.y }],
     "esp:36->mux:COM": [{ x: 350, y: from.y }, { x: 350, y: to.y }],
-    "esp:2->mux:A": [{ x: 380, y: from.y }, { x: 380, y: 460 }, { x: 650, y: 460 }, { x: 650, y: to.y }],
-    "esp:42->mux:B": [{ x: 405, y: from.y }, { x: 405, y: 435 }, { x: 675, y: 435 }, { x: 675, y: to.y }],
-    "esp:41->mux:C": [{ x: 430, y: from.y }, { x: 430, y: 410 }, { x: 700, y: 410 }, { x: 700, y: to.y }],
+    "esp:42->mux:A": [{ x: 380, y: from.y }, { x: 380, y: 250 }, { x: 650, y: 250 }, { x: 650, y: to.y }],
+    "esp:41->mux:B": [{ x: 405, y: from.y }, { x: 405, y: 280 }, { x: 675, y: 280 }, { x: 675, y: to.y }],
+    "esp:40->mux:C": [{ x: 430, y: from.y }, { x: 430, y: 310 }, { x: 700, y: 310 }, { x: 700, y: to.y }],
   };
   if (espMuxRoutes[key]) {
-    return routeWireAroundComponents(wire, routeVia(from, to, espMuxRoutes[key]), true);
+    return referenceRouteForWire(wire, routeVia(from, to, espMuxRoutes[key]), true);
   }
 
   const laneMap = {
     "mux:C0->acs1:OUT": { x: 735 },
-    "mux:C1->zmpt1:OUT": { x: 775 },
-    "mux:C2->acs2:OUT": { x: 815 },
-    "mux:C3->zmpt2:OUT": { x: 855 },
+    "mux:C1->acs2:OUT": { x: 775 },
+    "mux:C2->acs3:OUT": { x: 815 },
+    "mux:C3->acs4:OUT": { x: 855 },
   };
   if (laneMap[key]) {
-    return routeWireAroundComponents(wire, verticalLane(from, to, laneMap[key].x), false);
+    return referenceRouteForWire(wire, verticalLane(from, to, laneMap[key].x), false);
+  }
+
+  const voltageRoutes = {
+    "esp:10->zmpt1:OUT": [{ x: 145, y: from.y }, { x: 145, y: 872 }, { x: 1045, y: 872 }, { x: 1045, y: to.y }],
+  };
+  if (voltageRoutes[key]) {
+    return referenceRouteForWire(wire, routeVia(from, to, voltageRoutes[key]), true);
   }
 
   const controlRoutes = {
     "esp:39->relay1:IN": [{ x: 460, y: from.y }, { x: 460, y: 300 }, { x: 1340, y: 300 }, { x: 1340, y: to.y }],
     "esp:38->relay2:IN": [{ x: 430, y: from.y }, { x: 430, y: 1165 }, { x: 1340, y: 1165 }, { x: 1340, y: to.y }],
+    "esp:37->relay3:IN": [{ x: 500, y: from.y }, { x: 500, y: 1855 }, { x: 1340, y: 1855 }, { x: 1340, y: to.y }],
+    "esp:35->relay4:IN": [{ x: 530, y: from.y }, { x: 530, y: 2545 }, { x: 1340, y: 2545 }, { x: 1340, y: to.y }],
   };
   if (controlRoutes[key]) {
-    return routeWireAroundComponents(wire, routeVia(from, to, controlRoutes[key]), true);
+    return referenceRouteForWire(wire, routeVia(from, to, controlRoutes[key]), true);
   }
 
   const powerTargets = {
-    "esp:5V->acs1:VCC": { x: 40, y: 270 },
-    "esp:5V->zmpt1:VCC": { x: 62, y: 310 },
-    "esp:5V->relay1:VCC": { x: 84, y: 350 },
-    "esp:5V->acs2:VCC": { x: 106, y: 1710 },
-    "esp:5V->zmpt2:VCC": { x: 128, y: 1750 },
-    "esp:5V->relay2:VCC": { x: 150, y: 1790 },
-    "esp:GND->acs1:GND": { x: 190, y: 250 },
-    "esp:GND->zmpt1:GND": { x: 212, y: 292 },
-    "esp:GND->relay1:GND": { x: 234, y: 334 },
-    "esp:GND->acs2:GND": { x: 256, y: 1692 },
-    "esp:GND->zmpt2:GND": { x: 278, y: 1734 },
-    "esp:GND->relay2:GND": { x: 300, y: 1776 },
+    "esp:5V->acs1:VCC": { x: 18, y: 190 },
+    "esp:5V->zmpt1:VCC": { x: 30, y: 220 },
+    "esp:5V->relay1:VCC": { x: 42, y: 250 },
+    "esp:5V->acs2:VCC": { x: 18, y: 1795 },
+    "esp:5V->relay2:VCC": { x: 42, y: 1855 },
+    "esp:5V->acs3:VCC": { x: 18, y: 2070 },
+    "esp:5V->relay3:VCC": { x: 42, y: 2100 },
+    "esp:5V->acs4:VCC": { x: 18, y: 2760 },
+    "esp:5V->relay4:VCC": { x: 42, y: 2790 },
+    "esp:GND->acs1:GND": { x: 54, y: 175 },
+    "esp:GND->zmpt1:GND": { x: 66, y: 205 },
+    "esp:GND->relay1:GND": { x: 58, y: 235 },
+    "esp:GND->acs2:GND": { x: 54, y: 1780 },
+    "esp:GND->relay2:GND": { x: 58, y: 1840 },
+    "esp:GND->acs3:GND": { x: 54, y: 2055 },
+    "esp:GND->relay3:GND": { x: 58, y: 2085 },
+    "esp:GND->acs4:GND": { x: 54, y: 2745 },
+    "esp:GND->relay4:GND": { x: 58, y: 2775 },
   };
   if (powerTargets[key]) {
     const { x, y } = powerTargets[key];
-    return routeWireAroundComponents(wire, peripheralRoute(from, to, x, y), true);
+    return referenceRouteForWire(wire, peripheralRoute(from, to, x, y), true);
   }
 
   const acRoutes = {
@@ -994,11 +1258,17 @@ function routeForWire(wire, index) {
     "relay2:COM->acs2:LINE_IN": [{ x: 1665, y: from.y }, { x: 1665, y: 1430 }, { x: 1040, y: 1430 }, { x: 1040, y: to.y }],
     "acs2:LINE_OUT->fan2:L": [{ x: 1300, y: from.y }, { x: 1300, y: 1365 }, { x: 1740, y: 1365 }, { x: 1740, y: to.y }],
     "ac2:N->fan2:N": [{ x: 1250, y: from.y }, { x: 1250, y: 995 }, { x: 1875, y: 995 }, { x: 1875, y: to.y }, { x: to.x, y: to.y }],
-    "ac2:L->zmpt2:AC_L": [{ x: 930, y: from.y }, { x: 930, y: to.y }],
-    "ac2:N->zmpt2:AC_N": [{ x: 1260, y: from.y }, { x: 1260, y: to.y }],
+    "ac3:L->relay3:NO": [{ x: 940, y: from.y }, { x: 940, y: 1860 }, { x: 1420, y: 1860 }, { x: 1420, y: to.y }],
+    "relay3:COM->acs3:LINE_IN": [{ x: 1665, y: from.y }, { x: 1665, y: 2120 }, { x: 1040, y: 2120 }, { x: 1040, y: to.y }],
+    "acs3:LINE_OUT->fan3:L": [{ x: 1300, y: from.y }, { x: 1300, y: 2055 }, { x: 1740, y: 2055 }, { x: 1740, y: to.y }],
+    "ac3:N->fan3:N": [{ x: 1250, y: from.y }, { x: 1250, y: 1685 }, { x: 1875, y: 1685 }, { x: 1875, y: to.y }, { x: to.x, y: to.y }],
+    "ac4:L->relay4:NO": [{ x: 940, y: from.y }, { x: 940, y: 2550 }, { x: 1420, y: 2550 }, { x: 1420, y: to.y }],
+    "relay4:COM->acs4:LINE_IN": [{ x: 1665, y: from.y }, { x: 1665, y: 2810 }, { x: 1040, y: 2810 }, { x: 1040, y: to.y }],
+    "acs4:LINE_OUT->fan4:L": [{ x: 1300, y: from.y }, { x: 1300, y: 2745 }, { x: 1740, y: 2745 }, { x: 1740, y: to.y }],
+    "ac4:N->fan4:N": [{ x: 1250, y: from.y }, { x: 1250, y: 2375 }, { x: 1875, y: 2375 }, { x: 1875, y: to.y }, { x: to.x, y: to.y }],
   };
   if (acRoutes[key]) {
-    return routeWireAroundComponents(wire, routeVia(from, to, acRoutes[key]), true);
+    return referenceRouteForWire(wire, routeVia(from, to, acRoutes[key]), true);
   }
 
   return routeWireAroundComponents(wire, defaultRoutePoints(from, to).map((point, pointIndex) => ({
@@ -1023,10 +1293,22 @@ function autoRouteAll({ resetLayout = false } = {}) {
 
 function isWireActive(wire) {
   if (!running) return false;
+  if (wire.classes.includes("voltage")) return true;
   if (wire.classes.includes("signal")) return true;
-  if (wire.classes.includes("load1")) return loads[0].relay;
-  if (wire.classes.includes("load2")) return loads[1].relay;
+  const loadClass = wire.classes.find((className) => /^load\d+$/.test(className));
+  if (loadClass) {
+    const index = Number(loadClass.slice(4)) - 1;
+    if (wire.classes.includes("switch")) {
+      return Boolean(loads[index]?.wallSwitch);
+    }
+    return isLoadEnergized(index);
+  }
   return false;
+}
+
+function isLoadEnergized(index) {
+  const load = loads[index];
+  return Boolean(load?.relay && load.wallSwitch);
 }
 
 function renderParts() {
@@ -1040,11 +1322,12 @@ function renderParts() {
 
 function initPinAnchors() {
   Object.entries(pinMap).forEach(([partId, pins]) => {
+    if (partId === "rail") return;
     Object.entries(pins).forEach(([pinName, pin]) => {
       const pinId = `${partId}:${pinName}`;
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `pin-anchor ${pin.kind}${partId === "esp" ? " esp-pin-anchor" : ""}`;
+      button.className = `pin-anchor ${pin.kind}${partId === "esp" ? " esp-pin-anchor" : ""}${partId === "mux" ? " mux-pin-anchor" : ""}`;
       button.dataset.pin = pinId;
       button.dataset.label = pin.label || pinName;
       const direction = pinDirection(pinId);
@@ -1170,8 +1453,12 @@ function renderWires() {
 }
 
 function renderWireEndpointLabels(wire, from, to) {
-  addWireLabel(pinLabel(wire.from), from, -8, -26);
-  addWireLabel(pinLabel(wire.to), to, 12, -26);
+  if (!wire.from.startsWith("rail:")) {
+    addWireLabel(pinLabel(wire.from), from, -8, -26);
+  }
+  if (!wire.to.startsWith("rail:")) {
+    addWireLabel(pinLabel(wire.to), to, 12, -26);
+  }
 }
 
 function addWireLabel(text, point, dx, dy) {
@@ -1218,12 +1505,12 @@ function updateWireReadout() {
 function inferWireClasses(from, to) {
   const endpoints = `${from} ${to}`;
   const classes = ["manual"];
-  if (endpoints.includes("relay1") || endpoints.includes("fan1") || endpoints.includes("acs1") || endpoints.includes("zmpt1") || endpoints.includes("ac1")) {
-    classes.push("load1");
+  for (let i = 1; i <= loads.length; i++) {
+    if (endpoints.includes(`relay${i}`) || endpoints.includes(`fan${i}`) || endpoints.includes(`acs${i}`) || endpoints.includes(`ac${i}`)) {
+      classes.push(`load${i}`);
+    }
   }
-  if (endpoints.includes("relay2") || endpoints.includes("fan2") || endpoints.includes("acs2") || endpoints.includes("zmpt2") || endpoints.includes("ac2")) {
-    classes.push("load2");
-  }
+  if (endpoints.includes("zmpt1")) classes.push("voltage");
   if (selectedWireColor === "green") classes.push("control");
   if (selectedWireColor === "purple") classes.push("signal");
   if (selectedWireColor === "red") classes.push("live");
@@ -1355,6 +1642,7 @@ function initPartDragging() {
     partElement.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
       const partId = partElement.dataset.part;
+      if (/^sw\d+$/.test(partId)) return;
       if (!parts[partId]) return;
       drag = {
         partId,
@@ -1392,9 +1680,34 @@ function initPartDragging() {
   });
 }
 
+function initCanvasSwitches() {
+  document.querySelectorAll(".wall-switch").forEach((switchElement) => {
+    const switchNumber = Number(switchElement.dataset.part?.replace("sw", ""));
+    const index = switchNumber - 1;
+    if (!loads[index]) return;
+
+    switchElement.setAttribute("role", "button");
+    switchElement.setAttribute("tabindex", "0");
+    switchElement.setAttribute("aria-label", `Toggle switch ${switchNumber}`);
+
+    switchElement.addEventListener("click", (event) => {
+      if (event.target.closest(".pin-anchor")) return;
+      event.stopPropagation();
+      toggleWallSwitch(index);
+      updateVisualState();
+    });
+
+    switchElement.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      toggleWallSwitch(index);
+      updateVisualState();
+    });
+  });
+}
+
 function instantSample(index, timestampMs) {
-  const load = loads[index];
-  if (!load.relay) {
+  if (!isLoadEnergized(index)) {
     return {
       voltage: 0,
       current: 0,
@@ -1414,7 +1727,7 @@ function instantSample(index, timestampMs) {
 
 function loadCurrentRms(index) {
   const load = loads[index];
-  if (!load?.relay) return 0;
+  if (!isLoadEnergized(index)) return 0;
   return voltageRms / Math.max(load.resistanceOhms, 1);
 }
 
@@ -1509,7 +1822,7 @@ function renderWaveformChart(index) {
   if (samples.length === 0) {
     voltageLine.setAttribute("points", "");
     currentLine.setAttribute("points", "");
-    readout.textContent = !loads[index].relay ? "Relay OFF" : activeWindow?.loadIndex === index ? "Sampling..." : "No live window";
+    readout.textContent = !isLoadEnergized(index) ? "Load OFF" : activeWindow?.loadIndex === index ? "Sampling..." : "No live window";
     return;
   }
 
@@ -1568,7 +1881,7 @@ function clearLoadCharts(index) {
 
 function sampleActiveLoad(timestampMs, forceRender = false) {
   if (!activeWindow) return;
-  if (!loads[activeWindow.loadIndex].relay) {
+  if (!isLoadEnergized(activeWindow.loadIndex)) {
     activeWindow.lastSampleMs = timestampMs;
     if (forceRender || timestampMs - lastGraphRenderMs >= graphRenderIntervalMs) {
       renderWaveformChart(activeWindow.loadIndex);
@@ -1630,7 +1943,8 @@ function printMeasurement(m) {
       `  Wh=${m.wh.toFixed(5)}` +
       `  kWh=${(m.wh / 1000).toFixed(8)}` +
       `  Samples=${m.samples}` +
-      `  Relay=${loads[m.loadIndex].relay ? "ON" : "OFF"}`
+      `  Relay=${loads[m.loadIndex].relay ? "ON" : "OFF"}` +
+      `  Switch=${loads[m.loadIndex].wallSwitch ? "ON" : "OFF"}`
   );
 }
 
@@ -1646,10 +1960,12 @@ function updateVisualState() {
   voltageText.textContent = `${voltageRms.toFixed(0)}V`;
 
   loads.forEach((load, index) => {
-    document.querySelector(`.fan${index + 1}`).classList.toggle("active", running && load.relay);
-    document.querySelector(`.relay${index + 1}`).classList.toggle("active", load.relay);
+    document.querySelector(`.fan${index + 1}`)?.classList.toggle("active", running && isLoadEnergized(index));
+    document.querySelector(`.relay${index + 1}`)?.classList.toggle("active", load.relay);
+    document.querySelector(`.sw${index + 1}`)?.classList.toggle("active", load.wallSwitch);
+    document.querySelector(`[data-command="sw${index + 1}"]`)?.classList.toggle("on", load.wallSwitch);
     document.querySelectorAll(`.wire.load${index + 1}`).forEach((wire) => {
-      wire.classList.toggle("active", load.relay);
+      wire.classList.toggle("active", isLoadEnergized(index));
     });
     document.querySelectorAll(`.wire.control.load${index + 1}`).forEach((wire) => {
       wire.classList.toggle("active", load.relay);
@@ -1658,13 +1974,17 @@ function updateVisualState() {
     const irms = loadCurrentRms(index);
     const pavgWatts = voltageRms * irms;
     const va = voltageRms * irms;
-    document.querySelector(`#loadStats${index}`).innerHTML =
+    const loadStats = document.querySelector(`#loadStats${index}`);
+    if (loadStats) {
+      loadStats.innerHTML =
       `Relay: <strong>${load.relay ? "ON" : "OFF"}</strong><br>` +
+      `Switch GPIO${30 + index}: <strong>${load.wallSwitch ? "ON" : "OFF"}</strong><br>` +
       `R fan: ${load.resistanceOhms.toFixed(1)} ohm<br>` +
       `Irms: ${irms.toFixed(3)} A<br>` +
       `Pavg: ${pavgWatts.toFixed(2)} W<br>` +
       `VA: ${va.toFixed(2)}<br>` +
       `Wh: ${load.wh.toFixed(5)}`;
+    }
   });
 
   circuit.style.transform = `scale(${zoom})`;
@@ -1736,6 +2056,17 @@ function toggleAllRelays() {
   }
 }
 
+function toggleWallSwitch(index) {
+  if (!loads[index]) return;
+  loads[index].wallSwitch = !loads[index].wallSwitch;
+  if (!loads[index].relay) {
+    loads[index].relay = true;
+    appendSerial(`Switch ${index + 1} changed; relay released for manual ON`);
+    return;
+  }
+  appendSerial(`Switch ${index + 1} ${loads[index].wallSwitch ? "ON" : "OFF"}`);
+}
+
 function resetEnergy() {
   loads.forEach((load) => {
     load.wh = 0;
@@ -1775,8 +2106,14 @@ function handleCommand(rawCommand) {
   } else if (command === "reset") {
     resetEnergy();
     return;
-  } else if (/^(on|off|toggle)[12]$/.test(command)) {
-    const index = Number(command.at(-1)) - 1;
+  } else if (/^(on|off|toggle)\d+$/.test(command)) {
+    const index = Number(command.match(/\d+$/)[0]) - 1;
+    if (!loads[index]) {
+      appendSerial("Unknown load number");
+      printHelp();
+      updateVisualState();
+      return;
+    }
     if (command.startsWith("on")) loads[index].relay = true;
     if (command.startsWith("off")) loads[index].relay = false;
     if (command.startsWith("toggle")) loads[index].relay = !loads[index].relay;
@@ -1784,6 +2121,15 @@ function handleCommand(rawCommand) {
       clearLoadCharts(index);
     }
     appendSerial(`Relay ${index + 1} ${loads[index].relay ? "ON" : "OFF"}`);
+  } else if (/^sw\d+$/.test(command)) {
+    const index = Number(command.match(/\d+$/)[0]) - 1;
+    if (!loads[index]) {
+      appendSerial("Unknown switch number");
+      printHelp();
+      updateVisualState();
+      return;
+    }
+    toggleWallSwitch(index);
   } else if (command === "help") {
     printHelp();
   } else {
@@ -1796,8 +2142,8 @@ function handleCommand(rawCommand) {
 
 function printHelp() {
   appendSerial("");
-  appendSerial("Commands: on | off | toggle | reset | on1 | off1 | toggle1 | on2 | off2 | toggle2 | help");
-  appendSerial("Output: LOAD Vrms Irms Pavg VA Wh kWh Relay");
+  appendSerial("Commands: on | off | toggle | reset | on1..on4 | off1..off4 | toggle1..toggle4 | sw1..sw4 | help");
+  appendSerial("Output: LOAD Vrms Irms Pavg VA Wh kWh Relay Switch");
   appendSerial("");
 }
 
@@ -1965,6 +2311,8 @@ serialForm.addEventListener("submit", (event) => {
   serialInput.value = "";
 });
 
+ensureLoadCards();
+
 document.querySelectorAll("[data-command]").forEach((button) => {
   button.addEventListener("click", () => handleCommand(button.dataset.command));
 });
@@ -1995,6 +2343,7 @@ document.querySelectorAll("[data-wire-color]").forEach((button) => {
 
 initPinAnchors();
 initPartDragging();
+initCanvasSwitches();
 autoRouteAll({ resetLayout: true });
 appendSerial("AC Power Monitoring ESP32-S3 Local Web Simulator");
 appendSerial("This runs locally in the browser and mirrors the project Serial Monitor behavior.");

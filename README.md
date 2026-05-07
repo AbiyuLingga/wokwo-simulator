@@ -1,10 +1,10 @@
 # AC Power Monitoring ESP32-S3 Wokwi Simulation
 
-Browser and Wokwi simulation for an ESP32-S3 AC power monitor with two relay-controlled loads. The project measures voltage and current waveforms, calculates real average power from instantaneous samples, tracks energy, and can optionally sync readings and relay commands through Supabase.
+Browser and Wokwi simulation for an ESP32-S3 AC power monitor with four relay-controlled loads. The project measures one shared voltage waveform plus per-load current waveforms, calculates real average power from instantaneous samples, tracks energy, and can optionally sync readings and relay commands through Supabase.
 
 > Safety note: this is a safe simulation. The Wokwi circuit uses custom sensor chips and analog-level signals; it does not put real 220V mains onto MCU wires.
 
-This version follows the visual layout in `circuit_image (1).png`: ESP32-S3 on the left, CD4051 near the ESP32, two AC/load branches, two ZMPT101B voltage sensors, two ACS712-style current sensors, and two relay modules.
+This version follows the visual layout in `circuit_image (1).png`: ESP32-S3 on the left, CD4051 near the ESP32, four AC/load branches, one shared ZMPT101B voltage sensor, four ACS712-style current sensors, and four relay modules.
 
 Wokwi does not provide the same photo-style ZMPT101B, ACS712, fan, or AC source modules from the Circuit Designer screenshot, so those parts are represented as free Wokwi custom chips. The simulation stays safe: it does not put real 220V mains into Wokwi analog wires.
 
@@ -12,9 +12,10 @@ For detailed continuation notes for the next AI agent, see [`AI_HANDOFF.md`](AI_
 
 ## Features
 
-- ESP32-S3 firmware for two independent relay loads.
-- CD4051B analog multiplexer model for current and voltage sensor channels.
-- ZMPT101B-style voltage sensor and ACS712-style current sensor custom chips.
+- ESP32-S3 firmware for four independent relay loads.
+- Four low-voltage wall-switch inputs on GPIO30-GPIO33 for manual override.
+- CD4051B analog multiplexer model for per-load current channels and one shared voltage channel.
+- One ZMPT101B-style voltage sensor and per-load ACS712-style current sensor custom chips.
 - Real power calculation from `Pavg = average(V(t) * I(t))`.
 - 5-second sampling window per load, measured sequentially.
 - Browser simulator with draggable wiring, relay controls, waveform charts, and Pavg graph.
@@ -43,7 +44,7 @@ http://127.0.0.1:8000/supabase-dashboard.html
 
 ## Files Used By The Reference Layout
 
-- `sketch.ino` - ESP32-S3 firmware for two relay-controlled loads.
+- `sketch.ino` - ESP32-S3 firmware for four relay-controlled loads.
 - `diagram.json` - Wokwi layout arranged to match the reference image.
 - `cd4051b.chip.c/json` - analog CD4051B multiplexer model.
 - `zmpt101b.chip.c/json` - ZMPT101B-style 0-5V voltage sensor output.
@@ -76,11 +77,13 @@ http://127.0.0.1:8000/supabase-dashboard.html
 
 Serial commands:
 
-- `on` - enable both loads.
-- `off` - disable both loads.
-- `toggle` - toggle both loads.
+- `on` - enable all loads.
+- `off` - disable all loads.
+- `toggle` - toggle all loads.
 - `on1`, `off1`, `toggle1` - control load 1.
 - `on2`, `off2`, `toggle2` - control load 2.
+- `on3`, `off3`, `toggle3` - control load 3.
+- `on4`, `off4`, `toggle4` - control load 4.
 - `reset` - reset Wh/kWh counters.
 
 ## Supabase Dashboard
@@ -90,7 +93,7 @@ This project now supports an optional Supabase loop:
 1. ESP32/Wokwi posts each load measurement to `power_readings`.
 2. The dashboard reads the latest measurement per `relay_index`.
 3. The dashboard updates `circuits.relay_on` when you switch a relay on/off.
-4. ESP32/Wokwi polls `circuits` and applies the relay state to GPIO39/GPIO38.
+4. ESP32/Wokwi polls `circuits` and applies the relay state to GPIO39/GPIO38/GPIO37/GPIO35.
 
 Setup:
 
@@ -132,7 +135,7 @@ If Wokwi servers are full, you can still test the relay commands and serial-styl
 node local-sim.js
 ```
 
-This does not emulate the ESP32-S3 CPU or Wokwi circuit engine. It is a local logic/sensor-output simulation that mirrors the expected Serial Monitor behavior, including `on`, `off`, `toggle`, `reset`, `on1`, `off1`, `toggle1`, `on2`, `off2`, and `toggle2`.
+This does not emulate the ESP32-S3 CPU or Wokwi circuit engine. It is a local logic/sensor-output simulation that mirrors the expected Serial Monitor behavior, including `on`, `off`, `toggle`, `reset`, per-load commands such as `on1` through `on4`, and manual switch commands `sw1` through `sw4`.
 
 You can also open the local web simulator:
 
@@ -156,7 +159,7 @@ The firmware does not use power factor as an input. For each load, it samples th
 Pavg = sum(P) / samples
 ```
 
-With two loads, the main loop measures load 1 for about 5 seconds, then load 2 for about 5 seconds. The full refresh cycle is therefore about 10 seconds.
+With four loads, the main loop measures load 1 through load 4 for about 5 seconds each. The full refresh cycle is therefore about 20 seconds.
 
 This method is the right basis for real power as long as voltage and current waveforms are sampled with correct calibration and minimal timing skew. In this no-PF simulator model, the generated current waveform is in phase with voltage and the load current is calculated from fan resistance with `I = V / R`; for real inductive/capacitive loads, the real sensors must provide the actual phase relationship and the firmware will still compute Pavg from `V(t) * I(t)`.
 
@@ -184,11 +187,19 @@ Editor behavior in the web simulator:
 ## Reference Pin Map
 
 - CD4051 COM ADC: GPIO36.
-- CD4051 select A/B/C: GPIO2, GPIO42, GPIO41.
+- CD4051 select A/B/C: GPIO42, GPIO41, GPIO40.
 - Relay load 1: GPIO39.
 - Relay load 2: GPIO38.
-- CD4051 C0/C1: ACS712/ZMPT101B for load 1.
-- CD4051 C2/C3: ACS712/ZMPT101B for load 2.
+- Relay load 3: GPIO37.
+- Relay load 4: GPIO35.
+- Wall switch load 1: GPIO30 with `INPUT_PULLUP`.
+- Wall switch load 2: GPIO31 with `INPUT_PULLUP`.
+- Wall switch load 3: GPIO32 with `INPUT_PULLUP`.
+- Wall switch load 4: GPIO33 with `INPUT_PULLUP`.
+- CD4051 C0/C1/C2/C3: ACS712 current sensors for load 1/2/3/4.
+- CD4051 C7: one shared ZMPT101B voltage sensor used for every load.
+
+The wall-switch pins are logic inputs only. Do not connect 220V switch wiring directly to the ESP32. Use an isolated low-voltage contact, optocoupler, or an AC-detect module. In firmware, when any wall-switch input changes and its relay has been turned off by the system, the code turns that relay path back on so the user can manually recover the light from the physical switch.
 
 Important: GPIO36 is used because it appears in `circuit_image (1).png`. On real ESP32-S3 hardware, ADC-capable pins are GPIO1-GPIO20. If the simulation or hardware keeps reading zero from GPIO36, move CD4051 COM and `PIN_ADC_MUX` to an ADC-capable pin such as GPIO4 or GPIO5.
 
@@ -199,6 +210,6 @@ The default model uses:
 - 220V RMS mains represented as 0.80V RMS around a 2.5V ADC bias.
 - Current sensors represented as 0.08V RMS per amp around the same bias.
 - Current sensor waveforms are generated from the fan resistor value and stay in phase with the voltage waveform; no power-factor input is used.
-- Two relay-controlled loads.
+- Four relay-controlled loads.
 
 For real hardware, recalibrate `ADC_REF_VOLTS`, `VOLTAGE_SENSOR_RMS_AT_220V`, and `CURRENT_SENSOR_RMS_VOLTS_PER_AMP` in `sketch.ino` based on actual ADC range, ZMPT101B trim-pot gain, and current-sensor calibration.

@@ -215,7 +215,7 @@ input {
 }
 
 .circuit {
-  height: 1900px;
+  height: 3050px;
   position: relative;
   transform-origin: top left;
   width: 2200px;
@@ -479,30 +479,44 @@ input {
 }
 
 .mux {
-  height: 220px;
+  height: 252px;
   left: 430px;
   top: 610px;
-  width: 95px;
+  width: 118px;
 }
 
 .ic-body {
   align-items: center;
-  background: #171717;
-  border-radius: 4px;
+  background: linear-gradient(90deg, #111 0%, #202020 50%, #111 100%);
+  border-radius: 10px;
   color: #dcdcdc;
   display: flex;
-  font-size: 24px;
-  height: 220px;
+  font-size: 28px;
+  height: 252px;
   justify-content: center;
-  writing-mode: vertical-rl;
-  width: 95px;
+  left: 0;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  width: 118px;
+}
+
+.ic-body::before {
+  background: #7f7f7f;
+  border-radius: 0 0 18px 18px;
+  content: "";
+  height: 20px;
+  left: 42px;
+  position: absolute;
+  top: 0;
+  width: 34px;
 }
 
 .ic-pin {
   background: repeating-linear-gradient(#bfbfbf 0 13px, transparent 13px 30px);
-  height: 204px;
+  height: 228px;
   position: absolute;
-  top: 8px;
+  top: 12px;
   width: 12px;
 }
 
@@ -512,6 +526,86 @@ input {
 
 .ic-pin.right {
   right: -12px;
+}
+
+.ic-pin-labels {
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  grid-template-rows: repeat(8, 30px);
+  height: 240px;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 13px;
+  transition: opacity 120ms ease;
+  visibility: hidden;
+  z-index: 3;
+}
+
+.mux:hover .ic-pin-labels,
+.mux:focus-within .ic-pin-labels {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ic-pin-labels.left {
+  right: 132px;
+  text-align: center;
+}
+
+.ic-pin-labels.right {
+  left: 132px;
+  text-align: center;
+}
+
+.ic-pin-labels span {
+  align-items: center;
+  border-radius: 5px;
+  color: #ffffff;
+  display: flex;
+  height: 22px;
+  justify-content: center;
+  margin-top: 3px;
+  min-width: 86px;
+  padding: 0 12px;
+}
+
+.ic-pin-labels.right span {
+  justify-content: center;
+}
+
+.ic-pin-labels .channel {
+  background: #bf62df;
+}
+
+.ic-pin-labels .common {
+  background: #79d858;
+}
+
+.ic-pin-labels .enable {
+  background: #ff914d;
+}
+
+.ic-pin-labels .vee {
+  background: #137fc2;
+}
+
+.ic-pin-labels .vss {
+  background: #050505;
+}
+
+.ic-pin-labels .vdd {
+  background: #ff565d;
+}
+
+.ic-pin-labels .select {
+  background: #37ace8;
+}
+
+.pin-anchor.mux-pin-anchor::after {
+  display: none;
 }
 
 .ac {
@@ -531,7 +625,17 @@ input {
 
 .ac2 {
   left: 760px;
-  top: 720px;
+  top: 1030px;
+}
+
+.ac3 {
+  left: 760px;
+  top: 1720px;
+}
+
+.ac4 {
+  left: 760px;
+  top: 2410px;
 }
 
 .ac-symbol {
@@ -569,7 +673,17 @@ input {
 
 .fan2 {
   left: 1130px;
-  top: 720px;
+  top: 1040px;
+}
+
+.fan3 {
+  left: 1130px;
+  top: 1730px;
+}
+
+.fan4 {
+  left: 1130px;
+  top: 2420px;
 }
 
 .fan-ring {
@@ -651,12 +765,17 @@ input {
 
 .acs2 {
   left: 760px;
-  top: 880px;
+  top: 1045px;
 }
 
-.zmpt2 {
+.acs3 {
   left: 760px;
-  top: 1030px;
+  top: 1735px;
+}
+
+.acs4 {
+  left: 760px;
+  top: 2425px;
 }
 
 .terminal {
@@ -698,7 +817,17 @@ input {
 
 .relay2 {
   left: 1125px;
-  top: 875px;
+  top: 1090px;
+}
+
+.relay3 {
+  left: 1125px;
+  top: 1780px;
+}
+
+.relay4 {
+  left: 1125px;
+  top: 2470px;
 }
 
 .relay-inputs,
@@ -735,6 +864,78 @@ input {
 .relay.active .relay-led {
   background: #36ff70;
   box-shadow: 0 0 12px #36ff70;
+}
+
+.wall-switch {
+  background: #f8fafc;
+  border: 3px solid #1f2937;
+  border-radius: 6px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+  color: #111827;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  height: 62px;
+  padding: 7px 9px;
+  width: 118px;
+}
+
+.wall-switch:focus-visible {
+  outline: 3px solid #4f9cff;
+  outline-offset: 4px;
+}
+
+.switch-title {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.switch-track {
+  background: #d1d5db;
+  border-radius: 999px;
+  height: 18px;
+  position: relative;
+}
+
+.switch-track span {
+  background: #6b7280;
+  border-radius: 50%;
+  height: 22px;
+  left: 0;
+  position: absolute;
+  top: -2px;
+  transition: transform 0.18s ease, background 0.18s ease;
+  width: 22px;
+}
+
+.wall-switch.active .switch-track span {
+  background: #16a34a;
+  transform: translateX(68px);
+}
+
+.switch-pins {
+  color: #374151;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.switch-button {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  margin: 8px 0 4px;
+  min-height: 30px;
+  width: 100%;
+}
+
+.switch-button.on {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #166534;
 }
 
 .pin-anchor {
@@ -776,12 +977,21 @@ input {
   font-weight: 800;
   left: 18px;
   line-height: 1;
+  opacity: 0;
   padding: 4px 5px;
   pointer-events: none;
   position: absolute;
   top: -6px;
+  transition: opacity 120ms ease;
+  visibility: hidden;
   white-space: nowrap;
   z-index: 10;
+}
+
+.pin-anchor:hover::after,
+.pin-anchor.selected::after {
+  opacity: 1;
+  visibility: visible;
 }
 
 .pin-anchor[data-side="left"]::after {

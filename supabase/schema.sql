@@ -82,5 +82,7 @@ with check (true);
 insert into public.circuits (relay_index, name, relay_on, tariff_idr_per_kwh, command_nonce)
 values
   (1, 'Rangkaian 1', true, 1444.70, 0),
-  (2, 'Rangkaian 2', true, 1444.70, 0)
+  (2, 'Rangkaian 2', true, 1444.70, 0),
+  (3, 'Rangkaian 3', true, 1444.70, 0),
+  (4, 'Rangkaian 4', true, 1444.70, 0)
 on conflict (relay_index) do nothing;

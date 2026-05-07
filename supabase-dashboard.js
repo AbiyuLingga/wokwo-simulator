@@ -261,6 +261,8 @@ async function seedCircuits() {
       body: JSON.stringify([
         { relay_index: 1, name: "Rangkaian 1", relay_on: true, tariff_idr_per_kwh: 1444.7, command_nonce: Date.now() },
         { relay_index: 2, name: "Rangkaian 2", relay_on: true, tariff_idr_per_kwh: 1444.7, command_nonce: Date.now() },
+        { relay_index: 3, name: "Rangkaian 3", relay_on: true, tariff_idr_per_kwh: 1444.7, command_nonce: Date.now() },
+        { relay_index: 4, name: "Rangkaian 4", relay_on: true, tariff_idr_per_kwh: 1444.7, command_nonce: Date.now() },
       ]),
     });
     await loadData();

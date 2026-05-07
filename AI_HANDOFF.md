@@ -6,7 +6,7 @@ Dokumen ini adalah pegangan untuk AI berikutnya yang melanjutkan proyek `ac-powe
 
 ## Tujuan Proyek
 
-Project ini mensimulasikan monitoring daya AC berbasis ESP32-S3 di Wokwi dan browser lokal. Sistem mengukur 2 beban relay secara bergantian, masing-masing selama 5 detik, lalu menghitung:
+Project ini mensimulasikan monitoring daya AC berbasis ESP32-S3 di Wokwi dan browser lokal. Sistem sekarang mengukur 4 beban relay secara bergantian, masing-masing selama 5 detik, dengan 1 sensor tegangan shared dan sensor arus per rangkaian, lalu menghitung:
 
 - `Vrms`
 - `Irms`
@@ -110,9 +110,9 @@ Keputusan terbaru dari user:
 
 - Tidak memakai input PF.
 - Satu load diukur penuh selama 5 detik.
-- Setelah load 1 selesai 5 detik, baru load 2 diukur selama 5 detik.
-- Jangan mengeluarkan dua hasil load dalam waktu yang sama.
-- Total refresh penuh untuk 2 load sekitar 10 detik.
+- Setelah satu load selesai 5 detik, firmware pindah ke load berikutnya.
+- Jangan mengeluarkan beberapa hasil load dalam waktu yang sama.
+- Total refresh penuh untuk 4 load sekitar 20 detik.
 - Jika relay OFF, grafik dan sampling load itu harus berhenti/clear.
 
 Alur firmware:
@@ -138,17 +138,18 @@ File utama: `sketch.ino`.
 Konstanta penting:
 
 ```cpp
-constexpr uint8_t LOAD_COUNT = 2;
+constexpr uint8_t LOAD_COUNT = 4;
 constexpr uint8_t PIN_ADC_MUX = 36;
-constexpr uint8_t MUX_SELECT_PINS[3] = {2, 42, 41};
-constexpr uint8_t RELAY_PINS[LOAD_COUNT] = {39, 38};
-constexpr uint8_t CURRENT_CHANNELS[LOAD_COUNT] = {0, 2};
-constexpr uint8_t VOLTAGE_CHANNELS[LOAD_COUNT] = {1, 3};
+constexpr uint8_t MUX_SELECT_PINS[3] = {42, 41, 40};
+constexpr uint8_t RELAY_PINS[LOAD_COUNT] = {39, 38, 37, 35};
+constexpr uint8_t WALL_SWITCH_PINS[LOAD_COUNT] = {30, 31, 32, 33};
+constexpr uint8_t CURRENT_CHANNELS[LOAD_COUNT] = {0, 1, 2, 3};
+constexpr uint8_t SHARED_VOLTAGE_CHANNEL = 7;
 constexpr uint32_t SAMPLE_WINDOW_MS = 5000;
 constexpr uint32_t SAMPLE_INTERVAL_US = 1000;
 ```
 
-Catatan hardware nyata: firmware memakai `PIN_ADC_MUX = 36` untuk konteks simulasi sekarang. Untuk ESP32-S3 nyata, ADC umumnya ada di GPIO1-GPIO20. Jika dipindah ke hardware, pindahkan ADC mux ke pin ADC valid seperti GPIO4/GPIO5 dan update wiring.
+Catatan hardware nyata: firmware memakai `PIN_ADC_MUX = 36` untuk konteks simulasi sekarang. Untuk ESP32-S3 nyata, ADC umumnya ada di GPIO1-GPIO20. Jika dipindah ke hardware, pindahkan ADC mux ke pin ADC valid seperti GPIO4/GPIO5 dan update wiring. Saklar manual pada GPIO30-GPIO33 harus berupa input low-voltage terisolasi, bukan jalur 220V langsung.
 
 Kalibrasi penting:
 
@@ -190,13 +191,20 @@ toggle1
 on2
 off2
 toggle2
+on3
+off3
+toggle3
+on4
+off4
+toggle4
 ```
 
 Jawaban praktis jika user bertanya cara mematikan satu relay:
 
 - `off1` mematikan relay/load 1.
 - `off2` mematikan relay/load 2.
-- `on1` / `on2` menyalakan lagi.
+- `off3` dan `off4` mematikan load 3 dan load 4.
+- `on1` sampai `on4` menyalakan lagi.
 
 ## Detail Simulator Web
 
@@ -254,7 +262,7 @@ Jangan regresi ke:
 - grafik hanya titik-titik
 - V dan I saling menutup pada baseline yang sama
 - grafik tetap berjalan saat relay OFF
-- dua load dihitung dalam satu window yang sama
+- beberapa load dihitung dalam satu window yang sama
 
 ## Wiring dan Editor Browser
 
@@ -268,7 +276,7 @@ Permintaan user terbaru:
 
 Status terbaru:
 
-- ESP32 punya labelled pads di HTML untuk `3V3`, `5V`, `GND`, `TX`, `RX`, `2`, `42`, `41`, `36`, `38`, dan `39`.
+- ESP32 punya labelled pads di HTML untuk `3V3`, `5V`, `GND`, `TX`, `RX`, `2`, `42`, `41`, `40`, `36`, `38`, dan `39`.
 - `pinMap` ESP32 diarahkan ke edge pad kuning.
 - Anchor dot komponen disembunyikan dalam mode normal.
 - Anchor dot muncul saat wire mode aktif.
@@ -346,7 +354,9 @@ Starter row:
 insert into public.circuits (relay_index, name, relay_on, tariff_idr_per_kwh)
 values
   (1, 'Relay 1', true, 1444.70),
-  (2, 'Relay 2', true, 1444.70);
+  (2, 'Relay 2', true, 1444.70),
+  (3, 'Relay 3', true, 1444.70),
+  (4, 'Relay 4', true, 1444.70);
 ```
 
 RLS policy saat ini permisif untuk demo. Jangan pakai apa adanya untuk produksi tanpa authentication dan policy yang lebih ketat.
@@ -401,7 +411,7 @@ Untuk firmware, validasi terbaik tetap lewat Wokwi karena custom chip dan Arduin
 
 1. Pertahankan `sketch.ino` sebagai sumber utama logika pengukuran 5 detik per load.
 2. Jika memperbaiki simulator web, samakan perilaku dengan firmware.
-3. Jika user bertanya soal relay, jawab dengan command spesifik `off1`, `off2`, `on1`, atau `on2`.
+3. Jika user bertanya soal relay, jawab dengan command spesifik `off1` sampai `off4` atau `on1` sampai `on4`.
 4. Jika user meminta grafik, cek langsung waveform V/I lane dan Pavg graph.
 5. Jika user meminta wiring, cek visual browser, bukan hanya struktur data kabel.
 6. Jika user meminta integrasi hardware nyata, revisi pin ADC dan kalibrasi sensor terlebih dahulu.
